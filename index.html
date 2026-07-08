@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>مُقارن — مرجع المقارنات التشريعية</title>
+<title>مُقارن</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -320,7 +320,7 @@ const SYSTEM = {
   oldYear:'1433هـ', newYear:'1447هـ',
   oldCount:98, newCount:65, modified:36, created:24, transferred:4, repealed:0,
   retainedTemp:17,
-  retainedDesc:'بموجب الأحكام الانتقالية لنظام التنفيذ الجديد، يستمر العمل بأحكام الحجز التحفظي الواردة في الباب الثاني من نظام التنفيذ السابق إلى حين استكمال نقلها إلى نظام المرافعات الشرعية، كما يستمر العمل بأحكام الفصل الأول من الباب الخامس المتعلق بالإعسار إلى حين صدور التنظيم الخاص بالإعسار المدني ودخوله حيز النفاذ. ويأتي ذلك ضمانًا لاستمرار تطبيق هذه الأحكام وعدم حدوث فراغ تشريعي خلال المرحلة الانتقالية.',
+  retainedDesc:'بموجب الأحكام الانتقالية لنظام التنفيذ الجديد، يستمر العمل بأحكام الحجز التحفظي الواردة في الباب الثاني من نظام التنفيذ السابق إلى حين استكمال نقلها إلى نظام المرافعات الشرعية، كما يستمر العمل بأحكام الفصل الأول من الباب الخامس المتعلق بالإعسار إلى حين صدور التنظيم الخاص بالإعسار المدني ودخوله حيز النفاذ؛ ضمانًا لاستمرار تطبيق هذه الأحكام وعدم حدوث فراغ تنظيمي خلال المرحلة الانتقالية.',
   decree:'صادر بقرار مجلس الوزراء رقم (746) وتاريخ 26/10/1447هـ، والمصادق عليه بالمرسوم الملكي رقم (م/237) وتاريخ 03/11/1447هـ',
   updated:'1447هـ'
 };
@@ -507,10 +507,10 @@ function homeView(){
   const c = counts();
   return `
   <section class="hero">
-    <div class="hero-eyebrow"><span class="diamond"></span> مرجع تشريعي ذكي — نسخة تجريبية</div>
-    <h1>افهم كل تعديل نظامي <span>في دقائق</span>، لا في أيام</h1>
-    <p>مُقارن يقارن نصوص الأنظمة السعودية القديمة والجديدة مادة بمادة، ويوضح نوع التعديل وأثره النظامي وعلاقته بالأنظمة الأخرى — لمساعدة القضاة والمحامين والباحثين على تتبّع التطور التشريعي بثقة.</p>
-    <button class="btn btn-primary" onclick="nav('system/${SYSTEM.key}')">${ICO.book} ابدأ المقارنة</button>
+    <div class="hero-eyebrow"><span class="diamond"></span> مرجع قانوني — نسخة تجريبية</div>
+    <h1>افهم كل تعديل نظامي <span>في دقائق</h1>
+    <p>مُقارن يقارن نصوص الأنظمة السعودية القديمة والجديدة مادة بمادة، ويوضح نوع التعديل وأثره النظامي وعلاقته بالأنظمة الأخرى — لمساعدة القانونيين على تتبّع التطور التنظيمية بثقة.</p>
+    <button class="btn btn-primary" onclick="nav('system/${SYSTEM.key}')">${ICO.book} ابدأ</button>
   </section>
 
   <div class="stats-grid">
@@ -557,7 +557,7 @@ const NAV_ITEMS = [
   {key:'repealed', label:'المواد الملغاة', icon:'x', status:'ملغاة'},
   {key:'transferred', label:'المواد المنقولة دون تعديل', icon:'move', status:'منقولة'},
   {key:'retained', label:'المستبقاة مؤقتًا', icon:'note'},
-  {key:'stats', label:'الإحصائيات', icon:'chart'},
+  {key:'stats', label:'الإحصائيّات', icon:'chart'},
 ];
 
 function sidebarHTML(active){
