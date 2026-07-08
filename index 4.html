@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>مُقارن — مرجع المقارنات التشريعية</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ============ Tokens ============ */
+:root{
+  color-scheme: light;
+  --bg:#FAFAF9; --surface:#FFFFFF; --surface-2:#F1F4F4; --border:#E3E8E8;
+  --ink:#1B2225; --ink-2:#4A5457; --ink-muted:#7C8688;
+  --teal:#0EA39C; --teal-dark:#0A7F79; --teal-tint:#E3F6F4;
+  --green:#1E9E6B; --green-tint:#E7F6EE;
+  --amber:#B9821E; --amber-tint:#FBF1DF;
+  --red:#D6455B; --red-tint:#FCE8EB;
+  --slate:#647486; --slate-tint:#EAEEF2;
+  --shadow: 0 1px 2px rgba(20,24,25,.04), 0 6px 20px -8px rgba(20,24,25,.10);
+  --radius: 14px;
+  --font: 'IBM Plex Sans Arabic', sans-serif;
+  --mono: 'IBM Plex Mono','IBM Plex Sans Arabic', monospace;
+}
+[data-theme="dark"]{
+  color-scheme: dark;
+  --bg:#141819; --surface:#1B2022; --surface-2:#20262A; --border:#2B3336;
+  --ink:#EEF1F1; --ink-2:#C3CBCC; --ink-muted:#8A9496;
+  --teal:#2BC4BB; --teal-dark:#1EA69D; --teal-tint:#16302E;
+  --green:#3BB884; --green-tint:#12281F;
+  --amber:#D6A23E; --amber-tint:#2C2415;
+  --red:#E5697E; --red-tint:#2C1A1F;
+  --slate:#8CA0B4; --slate-tint:#1E2730;
+  --shadow: 0 1px 2px rgba(0,0,0,.3), 0 12px 30px -10px rgba(0,0,0,.5);
+}
+h1,h2,h3,h4,h5,h6{color:var(--ink); margin:0;}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--bg); color:var(--ink); font-family:var(--font);
+  -webkit-font-smoothing:antialiased; line-height:1.6;
+}
+@media (prefers-reduced-motion: reduce){ *{transition:none !important; animation:none !important;} }
+a{color:inherit; text-decoration:none;}
+button{font-family:inherit; cursor:pointer;}
+::selection{background:var(--teal-tint); color:var(--teal-dark);}
+
+/* diamond motif */
+.diamond{
+  width:8px; height:8px; background:var(--teal); transform:rotate(45deg);
+  display:inline-block; flex-shrink:0;
+}
+.diamond.lg{width:14px;height:14px;}
+.diamond.outline{background:transparent; border:2px solid var(--teal); }
+
+/* ============ Layout shell ============ */
+#app{min-height:100vh; display:flex; flex-direction:column;}
+
+.topbar{
+  position:sticky; top:0; z-index:40; background:var(--surface);
+  border-bottom:1px solid var(--border); backdrop-filter:blur(8px);
+}
+.topbar-inner{
+  max-width:1280px; margin:0 auto; padding:14px 24px;
+  display:flex; align-items:center; gap:20px;
+}
+.brand{display:flex; align-items:center; gap:10px; font-weight:700; font-size:18px; cursor:pointer;}
+.brand-mark{width:26px; height:26px; position:relative;}
+.brand-mark svg{width:100%; height:100%;}
+.brand small{font-weight:400; color:var(--ink-muted); font-size:12px; margin-right:4px;}
+
+.search-box{
+  flex:1; max-width:480px; position:relative;
+}
+.search-box input{
+  width:100%; padding:9px 14px 9px 36px; border-radius:10px; border:1px solid var(--border);
+  background:var(--surface-2); color:var(--ink); font-family:inherit; font-size:14px; outline:none;
+  transition:border-color .15s, box-shadow .15s;
+}
+.search-box input:focus{border-color:var(--teal); box-shadow:0 0 0 3px var(--teal-tint);}
+.search-box svg{position:absolute; right:12px; top:50%; transform:translateY(-50%); width:16px; height:16px; color:var(--ink-muted); pointer-events:none;}
+.search-results{
+  position:absolute; top:calc(100% + 6px); right:0; left:0; background:var(--surface);
+  border:1px solid var(--border); border-radius:12px; box-shadow:var(--shadow); max-height:70vh;
+  overflow-y:auto; z-index:50; display:none;
+}
+.search-results.open{display:block;}
+.search-result-item{padding:12px 16px; border-bottom:1px solid var(--border); cursor:pointer;}
+.search-result-item:last-child{border-bottom:none;}
+.search-result-item:hover{background:var(--surface-2);}
+.search-result-item .sr-title{font-weight:600; font-size:14px; margin-bottom:3px;}
+.search-result-item .sr-snip{font-size:12.5px; color:var(--ink-muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+
+.icon-btn{
+  width:36px; height:36px; border-radius:9px; border:1px solid var(--border); background:var(--surface-2);
+  display:flex; align-items:center; justify-content:center; color:var(--ink-2); flex-shrink:0;
+  transition:background .15s, color .15s;
+}
+.icon-btn:hover{background:var(--teal-tint); color:var(--teal-dark);}
+.icon-btn svg{width:17px; height:17px;}
+
+main{flex:1; max-width:1280px; margin:0 auto; width:100%; padding:0 24px;}
+
+/* ============ Hero / Home ============ */
+.hero{padding:64px 0 40px; text-align:center;}
+.hero-eyebrow{
+  display:inline-flex; align-items:center; gap:8px; font-size:13px; color:var(--teal-dark);
+  background:var(--teal-tint); padding:6px 14px; border-radius:20px; font-weight:600; margin-bottom:22px;
+}
+.hero h1{font-size:44px; font-weight:700; margin:0 0 14px; letter-spacing:-0.5px;}
+.hero h1 span{color:var(--teal);}
+.hero p{font-size:17px; color:var(--ink-2); max-width:560px; margin:0 auto 30px;}
+.btn{
+  display:inline-flex; align-items:center; gap:8px; padding:12px 26px; border-radius:10px;
+  border:none; font-weight:600; font-size:15px; transition:transform .15s, box-shadow .15s;
+}
+.btn-primary{background:var(--teal); color:#fff; box-shadow:0 6px 20px -6px var(--teal);}
+.btn-primary:hover{transform:translateY(-1px); box-shadow:0 10px 24px -6px var(--teal);}
+.btn-ghost{background:var(--surface-2); color:var(--ink); border:1px solid var(--border);}
+.btn-ghost:hover{background:var(--surface);}
+
+.stats-grid{
+  display:grid; grid-template-columns:repeat(6,1fr); gap:12px; margin:40px 0 56px;
+}
+.stat-card{
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
+  padding:18px 16px; text-align:right;
+}
+.stat-card .num{font-size:26px; font-weight:700; font-family:var(--mono); color:var(--ink);}
+.stat-card .lbl{font-size:12.5px; color:var(--ink-muted); margin-top:4px;}
+
+.section-head{display:flex; align-items:baseline; justify-content:space-between; margin:8px 0 20px;}
+.section-head h2{font-size:20px; font-weight:700; display:flex; align-items:center; gap:10px;}
+.section-head p{font-size:13px; color:var(--ink-muted);}
+
+.systems-grid{display:grid; grid-template-columns:1fr; max-width:560px; margin:0 auto 8px; gap:16px;}
+.system-card{
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
+  padding:24px; transition:border-color .15s, transform .15s; cursor:pointer;
+}
+.system-card:hover{border-color:var(--teal); transform:translateY(-2px);}
+.system-card-top{display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;}
+.system-card h3{font-size:17px; font-weight:700; margin:0; display:flex; align-items:center; gap:9px;}
+.system-badge{font-size:11px; background:var(--teal-tint); color:var(--teal-dark); padding:3px 10px; border-radius:12px; font-weight:600;}
+.system-meta{display:flex; gap:18px; margin:14px 0 18px; flex-wrap:wrap;}
+.system-meta div{font-size:12.5px; color:var(--ink-muted);}
+.system-meta b{display:block; font-size:19px; color:var(--ink); font-family:var(--mono); font-weight:600;}
+.system-card .btn{width:100%; justify-content:center;}
+.system-card-desc{font-size:13px; color:var(--ink-muted); margin-bottom:4px; line-height:1.7;}
+.coming-card{
+  border-style:dashed; display:flex; align-items:center; justify-content:center; flex-direction:column;
+  color:var(--ink-muted); gap:8px; min-height:180px;
+}
+
+/* ============ System workspace layout ============ */
+.workspace{display:grid; grid-template-columns:240px 1fr; gap:0; align-items:start; padding-bottom:60px;}
+.sidebar{
+  position:sticky; top:73px; border-left:1px solid var(--border); padding:22px 18px 22px 0;
+  height:calc(100vh - 73px); overflow-y:auto;
+}
+.sidebar-title{font-size:12px; color:var(--ink-muted); text-transform:uppercase; letter-spacing:.5px; margin:0 0 10px; font-weight:600;}
+.sidebar-title.mt{margin-top:22px;}
+.nav-item{
+  display:flex; align-items:center; justify-content:space-between; gap:10px; padding:9px 12px; border-radius:9px;
+  font-size:14px; color:var(--ink-2); margin-bottom:2px; font-weight:500;
+}
+.nav-item:hover{background:var(--surface-2);}
+.nav-item.active{background:var(--teal-tint); color:var(--teal-dark); font-weight:600;}
+.nav-item .count{font-size:11.5px; color:var(--ink-muted); font-family:var(--mono);}
+.nav-item.active .count{color:var(--teal-dark);}
+.nav-dot{width:8px; height:8px; border-radius:50%; flex-shrink:0;}
+
+.content-pane{padding:24px 28px; min-width:0;}
+.content-pane h1.page-title{font-size:24px; font-weight:700; margin:0 0 6px; display:flex; align-items:center; gap:10px;}
+.content-pane .page-sub{color:var(--ink-muted); font-size:14px; margin-bottom:24px;}
+
+.filters-row{display:flex; gap:8px; margin-bottom:20px; flex-wrap:wrap;}
+.chip{
+  padding:6px 14px; border-radius:20px; font-size:13px; border:1px solid var(--border); background:var(--surface);
+  color:var(--ink-2); font-weight:500;
+}
+.chip.active{background:var(--ink); color:var(--bg); border-color:var(--ink);}
+
+.article-list{display:flex; flex-direction:column; gap:10px;}
+.article-row{
+  display:flex; align-items:center; gap:14px; padding:15px 18px; background:var(--surface);
+  border:1px solid var(--border); border-radius:12px; transition:border-color .15s, background .15s;
+}
+.article-row:hover{border-color:var(--teal);}
+.article-row .art-id{font-family:var(--mono); font-size:12.5px; color:var(--ink-muted); min-width:26px;}
+.article-row .art-title{flex:1; font-size:14.5px; font-weight:600; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.article-row .art-preview{flex:2; font-size:12.5px; color:var(--ink-muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0;}
+.status-badge{
+  font-size:11.5px; font-weight:700; padding:4px 11px; border-radius:8px; flex-shrink:0; display:inline-flex; align-items:center; gap:5px;
+}
+.status-badge.مستحدثة{background:var(--green-tint); color:var(--green);}
+.status-badge.معدلة{background:var(--amber-tint); color:var(--amber);}
+.status-badge.منقولة{background:var(--slate-tint); color:var(--slate);}
+.status-badge.ملغاة{background:var(--red-tint); color:var(--red);}
+
+.empty-state{
+  text-align:center; padding:70px 20px; color:var(--ink-muted); border:1px dashed var(--border); border-radius:16px;
+}
+.empty-state .diamond{margin-bottom:14px;}
+.empty-state h3{color:var(--ink); font-size:16px; margin:10px 0 6px;}
+
+/* ============ Overview page ============ */
+.overview-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:32px;}
+.mini-stat{background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:16px;}
+.mini-stat .n{font-size:24px; font-weight:700; font-family:var(--mono);}
+.mini-stat .l{font-size:12.5px; color:var(--ink-muted); margin-top:3px;}
+.legend-box{background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:20px 22px; margin-bottom:28px;}
+.legend-row{display:flex; align-items:flex-start; gap:12px; padding:9px 0; border-bottom:1px solid var(--border);}
+.legend-row:last-child{border-bottom:none;}
+.legend-row .l-txt{font-size:13px; color:var(--ink-muted);}
+
+/* ============ Article detail ============ */
+.article-header{margin-bottom:22px;}
+.article-header .breadcrumb{font-size:12.5px; color:var(--ink-muted); margin-bottom:10px; display:flex; gap:6px; align-items:center;}
+.article-header .breadcrumb span:hover{color:var(--teal-dark); cursor:pointer;}
+.article-header h1{font-size:22px; font-weight:700; margin:0 0 10px;}
+.article-header .badges{display:flex; gap:10px; align-items:center;}
+
+.diff-wrap{
+  border:1px solid var(--border); border-radius:14px; overflow:hidden; margin-bottom:24px; background:var(--surface);
+}
+.diff-head{display:grid; grid-template-columns:1fr 1fr;}
+.diff-head div{padding:12px 18px; font-size:13px; font-weight:700; border-bottom:1px solid var(--border);}
+.diff-head .old-h{background:var(--red-tint); color:var(--red); border-left:1px solid var(--border);}
+.diff-head .new-h{background:var(--green-tint); color:var(--green);}
+.diff-body{display:grid; grid-template-columns:1fr 1fr;}
+.diff-col{padding:18px; font-size:14px; line-height:1.9;}
+.diff-col.old{border-left:1px solid var(--border); background:linear-gradient(var(--red-tint), transparent 40px);}
+.diff-col.new{background:linear-gradient(var(--green-tint), transparent 40px);}
+@media (max-width:760px){ .diff-head, .diff-body{grid-template-columns:1fr;} .diff-head .old-h, .diff-col.old{border-left:none; border-bottom:1px solid var(--border);} }
+
+.cards-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:14px; margin-bottom:20px;}
+.info-card{background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:18px 20px;}
+.info-card h4{font-size:13px; font-weight:700; margin:0 0 10px; display:flex; align-items:center; gap:8px; color:var(--ink-2);}
+.info-card p{font-size:13.5px; color:var(--ink-2); margin:0; line-height:1.8;}
+.info-card.full{grid-column:1 / -1;}
+.notes-area{
+  width:100%; min-height:80px; border:1px solid var(--border); border-radius:10px; padding:10px 12px;
+  font-family:inherit; font-size:13.5px; background:var(--surface-2); color:var(--ink); resize:vertical; outline:none;
+}
+.notes-area:focus{border-color:var(--teal);}
+.note-hint{font-size:11.5px; color:var(--ink-muted); margin-top:6px;}
+
+/* ============ Stats page ============ */
+.chart-card{background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:22px; margin-bottom:20px;}
+.chart-card h4{font-size:14px; font-weight:700; margin:0 0 16px;}
+.bar-row{display:flex; align-items:center; gap:12px; margin-bottom:12px;}
+.bar-row .bar-label{width:90px; font-size:13px; color:var(--ink-2); flex-shrink:0;}
+.bar-track{flex:1; height:22px; background:var(--surface-2); border-radius:6px; overflow:hidden;}
+.bar-fill{height:100%; border-radius:6px; display:flex; align-items:center; padding:0 10px; font-size:11.5px; color:#fff; font-weight:700; font-family:var(--mono);}
+.donut-wrap{display:flex; align-items:center; gap:30px; flex-wrap:wrap;}
+.donut-legend{display:flex; flex-direction:column; gap:10px;}
+.donut-legend .dl-item{display:flex; align-items:center; gap:8px; font-size:13.5px;}
+.donut-legend .dl-item .sw{width:10px; height:10px; border-radius:50%;}
+.donut-legend .dl-item b{font-family:var(--mono);}
+
+footer{border-top:1px solid var(--border); padding:26px 24px; text-align:center; color:var(--ink-muted); font-size:12.5px; margin-top:auto;}
+
+/* company banner + about/team */
+.company-banner{
+  text-align:center; font-size:12.5px; color:var(--ink-muted); padding:8px 20px;
+  border-bottom:1px solid var(--border); background:var(--surface-2);
+}
+.company-banner b{color:var(--ink-2);}
+.article-num-tags{display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin:6px 0 2px;}
+.num-tag{font-size:12px; font-family:var(--mono); padding:3px 10px; border-radius:8px; background:var(--surface-2); border:1px solid var(--border); color:var(--ink-2);}
+.num-tag.old{color:var(--red);}
+.num-tag.new{color:var(--green);}
+.art-numbers{font-family:var(--mono); font-size:11.5px; color:var(--ink-muted); flex-shrink:0; min-width:64px;}
+.update-note{
+  text-align:center; font-size:13px; color:var(--ink-muted); margin:0 0 40px; padding:14px 18px;
+  border:1px dashed var(--border); border-radius:12px; max-width:560px; margin-inline:auto;
+}
+.team-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-top:24px;}
+.team-card{background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:24px 20px; text-align:center;}
+.team-avatar{
+  width:56px; height:56px; border-radius:50%; background:var(--teal-tint); color:var(--teal-dark);
+  display:flex; align-items:center; justify-content:center; margin:0 auto 14px; font-weight:700; font-size:18px;
+}
+.team-card h4{font-size:15px; margin-bottom:4px;}
+.team-card p{font-size:13px; color:var(--ink-muted); margin:0;}
+@media (max-width:760px){ .team-grid{grid-template-columns:1fr;} }
+
+/* retained provisions accordion */
+.retained-group-title{font-size:13px; font-weight:700; color:var(--ink-2); margin:24px 0 10px; display:flex; align-items:center; gap:8px;}
+.retained-item{background:var(--surface); border:1px solid var(--border); border-radius:12px; margin-bottom:8px; overflow:hidden;}
+.retained-item summary{
+  padding:13px 16px; cursor:pointer; font-size:13.5px; font-weight:600; display:flex; align-items:center; gap:10px;
+  list-style:none;
+}
+.retained-item summary::-webkit-details-marker{display:none;}
+.retained-item summary::before{content:'+'; color:var(--teal); font-weight:700; font-family:var(--mono);}
+.retained-item[open] summary::before{content:'−';}
+.retained-item .ri-body{padding:0 16px 16px; font-size:13.5px; color:var(--ink-2); line-height:1.9; white-space:pre-line;}
+
+@media (max-width:900px){
+  .stats-grid{grid-template-columns:repeat(3,1fr);}
+  .systems-grid{grid-template-columns:1fr;}
+  .workspace{grid-template-columns:1fr;}
+  .sidebar{position:static; height:auto; border-left:none; border-bottom:1px solid var(--border); padding:16px;}
+  .overview-grid{grid-template-columns:repeat(2,1fr);}
+  .cards-grid{grid-template-columns:1fr;}
+  .hero h1{font-size:32px;}
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+const SYSTEM = {
+  key:'execution',
+  name:'نظام التنفيذ',
+  oldYear:'1433هـ', newYear:'1447هـ',
+  oldCount:98, newCount:65, modified:36, created:24, transferred:4, repealed:0,
+  retainedTemp:17,
+  retainedDesc:'بموجب الأحكام الانتقالية لنظام التنفيذ الجديد، يستمر العمل بأحكام الحجز التحفظي الواردة في الباب الثاني من نظام التنفيذ السابق إلى حين استكمال نقلها إلى نظام المرافعات الشرعية، كما يستمر العمل بأحكام الفصل الأول من الباب الخامس المتعلق بالإعسار إلى حين صدور التنظيم الخاص بالإعسار المدني ودخوله حيز النفاذ. ويأتي ذلك ضمانًا لاستمرار تطبيق هذه الأحكام وعدم حدوث فراغ تشريعي خلال المرحلة الانتقالية.',
+  decree:'صادر بقرار مجلس الوزراء رقم (746) وتاريخ 26/10/1447هـ، والمصادق عليه بالمرسوم الملكي رقم (م/237) وتاريخ 03/11/1447هـ',
+  updated:'1447هـ'
+};
+const RETAINED_ARTICLES = [{"group": "الفصل الأول من الباب السادس — أحكام الإعسار", "number": "السابعة والسبعون", "text": "إذا لم يف المدين بالدين وادعى الإعسار، ينظر قاضي التنفيذ في إثبات إعساره بعد استكمال إجراءات الإفصاح عن الأموال والاستجواب والتتبع، وفقًا لأحكام هذا النظام، وبعد إعلان يتضمن أسباب طلب الإعسار، وينشر في صحيفة يومية أو أكثر في منطقة المدين."}, {"group": "الفصل الأول من الباب السادس — أحكام الإعسار", "number": "الثامنة والسبعون", "text": "1- إذا ادعى المدين الإعسار وظهر لقاضي التنفيذ قرائن على إخفائه لأمواله، فعلى قاضي التنفيذ - بموجب حكم يصدره - استظهار حاله بالحبس مدة لا تتجاوز خمس سنوات مع مراعاة كثير المال وقليله، ويخضع الحكم لتدقيق محكمة الاستئناف.\n2- يستدعي قاضي التنفيذ المدين خلال فترة حبسه الواردة في الفقرة (1) من هذه المادة ويستجوبه استظهارًا لحاله بصفة دورية لا تتجاوز ثلاثة أشهر وفق ما تحدده اللائحة.\n3- تحدد اللائحة كثير مال المدين وقليله بحسب أنواع الديون وأحوال المدينين، ويكون ذلك بالتنسيق مع وزارة الداخلية ووزارة المالية."}, {"group": "الفصل الأول من الباب السادس — أحكام الإعسار", "number": "التاسعة والسبعون", "text": "إذا نشأ الدين عن واقعة جنائية غير متعمدة وادعى المدين الإعسار، يثبت قاضي التنفيذ إعساره بعد سماع بينته، فإن لم يكن له بينة، أمر القاضي بيمين الاستظهار وأثبت إعساره."}, {"group": "الفصل الأول من الباب السادس — أحكام الإعسار", "number": "الثمانون", "text": "إذا ادعى المدين الإعسار، وظهر لقاضي التنفيذ أن دعوى الإعسار احتيالية، أو كان عجز المدين عن الوفاء نتيجة تعدٍّ أو تفريط منه؛ أثبت القاضي تلك الواقعة، واستكمل إجراءات التنفيذ، وأمر بإيقاف المتهم وإحالة ملف الاتهام خلال مدة لا تتجاوز سبعة أيام إلى هيئة التحقيق والادعاء العام لرفع الدعوى. ويجوز لذوي المصلحة تقديم بلاغ إلى الهيئة بطلب رفع الدعوى، وينظر قاضي الموضوع في الدعوى، وفي حال الإدانة تُطبَّق العقوبة المنصوص عليها في هذا النظام."}, {"group": "الفصل الأول من الباب السادس — أحكام الإعسار", "number": "الحادية والثمانون", "text": "1- يصدر قاضي التنفيذ أمره للجهات المسؤولة عن الأصول الواردة في هذا النظام بالحجز على الأموال التي ترد مستقبلاً للمدين المعسر.\n2- يشعر القاضي أحد المرخص لهم بتسجيل المعلومات الائتمانية بواقعة الإعسار.\n3- للدائن التقدم بالسند التنفيذي نفسه مستقبلاً إلى قاضي التنفيذ إذا ظهر للمدين المعسر أي مال."}, {"group": "الفصل الأول من الباب السادس — أحكام الإعسار", "number": "الثانية والثمانون", "text": "يخضع التاجر في إعلان إفلاسه لقواعد الإفلاس المقررة نظامًا."}, {"group": "الباب الثاني — أحكام الحجز التحفظي", "number": "الثالثة والعشرون", "text": "يكون للجهة المختصة نظامًا بالنظر في النزاع؛ سلطة الأمر بالحجز التحفظي، وفقًا لأحكام القضاء المستعجل."}, {"group": "الباب الثاني — أحكام الحجز التحفظي", "number": "الرابعة والعشرون", "text": "للدائن أن يطلب إيقاع الحجز التحفظي على منقولات مدينه إذا لم يكن للمدين محل إقامة ثابت في المملكة، أو خشي الدائن لأسباب مقبولة اختفاء أموال المدين، أو تهريبها."}, {"group": "الباب الثاني — أحكام الحجز التحفظي", "number": "الخامسة والعشرون", "text": "لمؤجر العقار أن يطلب إيقاع الحجز التحفظي على المنقولات، أو الثمار التي في العين المؤجرة ضمانًا للأجور المستحقة."}, {"group": "الباب الثاني — أحكام الحجز التحفظي", "number": "السادسة والعشرون", "text": "لمن يدعي ملك المنقول أن يطلب إيقاع الحجز التحفظي عند من يحوزه متى كانت هناك دلائل واضحة تؤيد ادعاءه."}, {"group": "الباب الثاني — أحكام الحجز التحفظي", "number": "السابعة والعشرون", "text": "للدائن بدين مستقر حالِّ الأداء - ولو لم يكن بيده حكم قابل للتنفيذ - أن يطلب إيقاع الحجز التحفظي على ما يكون لمدينه لدى الآخرين من الديون، ولو كانت مؤجلة، أو معلقة على شرط، وما يكون له من أموال أو أعيان منقولة في يد الغير، وعلى المحجوز لديه خلال عشرة أيام من تاريخ تبليغه بالحجز الإقرار بما في ذمته من الديون، والأعيان، والأموال، وعليه الإيداع في حساب المحكمة خلال عشرة أيام من تاريخ تبليغه بحكم صحة الحجز بما أقر به، أو ما يفي منه بالحق."}, {"group": "الباب الثاني — أحكام الحجز التحفظي", "number": "الثامنة والعشرون", "text": "لا يوقع الحجز التحفظي في الأحوال المتقدمة إلا اقتضاءً لحقٍّ ظاهر الوجود، وحالِّ الأداء."}, {"group": "الباب الثاني — أحكام الحجز التحفظي", "number": "التاسعة والعشرون", "text": "لا يوقع الحجز التحفظي في الأحوال المنصوص عليها في المواد السابقة إلا بأمر من المحكمة، أو الجهة المختصة بنظر النزاع التابع لها محل إقامة المحجوز على أمواله، وللمحكمة أو الجهة قبل إصدار أمرها أن تجري التحقيق اللازم إذا لم تكفها المستندات المؤيدة لطلب الحجز."}, {"group": "الباب الثاني — أحكام الحجز التحفظي", "number": "الثلاثون", "text": "إذا كانت الدعوى بالحق مرفوعة أمام المحكمة، أو الجهة المختصة؛ اختصت هذه المحكمة، أو الجهة بإصدار الأمر بالحجز التحفظي."}, {"group": "الباب الثاني — أحكام الحجز التحفظي", "number": "الحادية والثلاثون", "text": "يجب أن يُبلَّغ المحجوز على أمواله، والمحجوز لديه بالأمر الصادر بالحجز خلال عشرة أيام على الأكثر من تاريخ صدوره، وإلا عُدَّ الحجز ملغى. ويجب على الحاجز خلال الأيام العشرة المشار إليها أن يرفع أمام المحكمة أو الجهة المختصة الدعوى بثبوت الحق وصحة الحجز، وإلا عُدَّ الحجز ملغى."}, {"group": "الباب الثاني — أحكام الحجز التحفظي", "number": "الثانية والثلاثون", "text": "يجب على طالب الحجز أن يقدم إلى المحكمة، أو الجهة المختصة إقرارًا خطيًا موثقًا من كفيل مقتدر، أو ضمانًا يضمن جميع حقوق من طلب الحجز على أمواله وما يلحقه من ضرر إذا ظهر أن طالب الحجز غير محق في طلبه."}, {"group": "الباب الثاني — أحكام الحجز التحفظي", "number": "الثالثة والثلاثون", "text": "تُتبع في الحجز التحفظي - على المنقولات وما للمدين لدى الغير منها - الإجراءات المتعلقة بالحجز التنفيذي عدا ما يتعلق بالبيع."}];
+const COMPANY = { name:'شركة جاسر بن ناصر الجاسر للمحاماة' };
+const TEAM = [
+  {name:'أ. جاسر ناصر الجاسر', role:'محامٍ ممارس، ومحكم معتمد'},
+  {name:'بتول عبدالمحسن الزهراني', role:'طالبة أنظمة في السنة الرابعة'},
+  {name:'—', role:'يُضاف لاحقًا'}
+];
+const ARTICLES = [{"id": 1, "header": "المادة الأولى – التعريفات", "title": "التعريفات", "status": "معدلة", "old_text": "يُقُصد بالألفاظ والعبارات الآتية - أينما وردت في هذا النظام المعاني المبينة أمام كل منها، ما لم يقتض السياق غير ذلك: النظام: نظام التنفيذ. اللائحة: اللائحة التنفيذية للنظام. المجلس: المجلس الأعلى للقضاء. الوزارة: وزارة العدل. الوزير: وزير العدل. المحكمة: محكمة التنفيذ. الإدارة المختصة: الوحدة الإدارية في الوزارة أو في المحكمة المعنية بمباشرة إجراء من إجراءات التنفيذ وفقًا لما ورد في النظام واللائحة. الجهة المختصة: الجهة العامة المختصة نظامًا بأعمال ذات صلة بالتنفيذ. الجهة المشرفة على الأموال أو تسجيلها: الجهة العامة المختصة نظامًا بالإشراف على نوع من أنواع الأموال - سواءً أكانت ثابتة أم منقولة أو تسجيل ملكيتها، بما في ذلك الجهة العامة المختصة بالإشراف على المؤسسات المالية والجهة العامة المختصة بالإشراف على السوق المالية. القوة المختصة: الشرطة أو الجهة الأمنية المختصة لدعم التنفيذ باستعمال القوة الجبرية. التنفيذ المباشر: تنفيذ السند التنفيذي متى كان محل الحق فيه أداء فعل أو امتناعًا عن فعل. مصروفات التنفيذ الالتزامات المالية المترتبة على إجراءات التنفيذ وفقًا للأحكام المنظمة لذلك.", "new_text": "يُقُصد بالألفاظ والعبارات الآتية - أينما وردت في هذا النظام المعاني المبينة أمام كل منها، ما لم يقتض السياق غير ذلك: النظام: نظام التنفيذ. اللائحة: اللائحة التنفيذية للنظام. المجلس: المجلس الأعلى للقضاء. الوزارة: وزارة العدل. الوزير: وزير العدل. المحكمة: محكمة التنفيذ. الإدارة المختصة: الوحدة الإدارية في الوزارة أو في المحكمة المعنية بمباشرة إجراء من إجراءات التنفيذ وفقًا لما ورد في النظام واللائحة. الجهة المختصة: الجهة العامة المختصة نظامًا بأعمال ذات صلة بالتنفيذ. الجهة المشرفة على الأموال أو تسجيلها: الجهة العامة المختصة نظامًا بالإشراف على نوع من أنواع الأموال - سواءً أكانت ثابتة أم منقولة أو تسجيل ملكيتها، بما في ذلك الجهة العامة المختصة بالإشراف على المؤسسات المالية والجهة العامة المختصة بالإشراف على السوق المالية. القوة المختصة: الشرطة أو الجهة الأمنية المختصة لدعم التنفيذ باستعمال القوة الجبرية. التنفيذ المباشر: تنفيذ السند التنفيذي متى كان محل الحق فيه أداء فعل أو امتناعًا عن فعل. مصروفات التنفيذ الالتزامات المالية المترتبة على إجراءات التنفيذ وفقًا للأحكام المنظمة لذلك.", "change_type": "تحويل الأفكار والتخصيص الهيكلي من خلال توسيع نطاق الجهات المخاطبة بأوامر المحكمة ليشمل الجهات الحكومية والخاصة المسجِّلة للأموال، مع توحيد المصطلحات المستخدمة في النظام.", "effect": "توسيع دائرة الملزَمين بتنفيذ أوامر المحكمة ليشمل الجهات الحكومية والخاصة المسجِّلة للأموال، مع إرساء مصطلحية واضحة تُسهم في وحدة التطبيق القضائي .", "linkage": "يتكامل مع نظام المعاملات المدنية > .", "old_number": "الأولى", "new_number": "الأولى", "sort_id": 1}, {"id": 2, "header": "المادة الثامنة (قديم) / المادة الثانية (جديد) – تشكيل المحكمة", "title": "تشكيل المحكمة", "status": "معدلة", "old_text": "تتولى دائرة التنفيذ -في كل محكمة عامة التنفيذ- وإجراءاته ويجوز تأليف أكثر من دائرة عند الحاجة . يتولى القاضي الفرد التنفيذ وإجراءاته . يكون تنفيذ الأحكام والأوامر والمحررات الأجنبية من قاضٍ أو أ كثر. وللمجلس الأعلى للقضاء – عند الحاجة- إحداث محاكم متخصصة للتنفيذ.", "new_text": "تتكون المحكمة من دوائر ابتدائية ودوائر استئناف أو من دوائر ابتدائية فقط . يكون استئناف الأحكام الصادرة من الدوائر الابتدائية في المحكمة التي ليس فيها دوائر استئناف ؛ أمام دوائر الاستئناف في المحكمة التي يحددها المجلس .", "change_type": "إعادة هيكلة قضائية وتعزيز درجات التقاضي", "effect": "يُفسح المجال لمراجعة قرارات التنفيذ الابتدائية أمام جهة أعلى داخل التشكيل ذاته، مما يُضفي مزيداً من الرقابة القضائية.", "linkage": "يتسق مع التوجه العام لنظام المحاكم في المملكة نحو التخصص وتعدد درجات التقاضي.", "old_number": "الثامنة", "new_number": "الثانية", "sort_id": 2}, {"id": 3, "header": "المادة الثالثة (جديد) – إلزام الجهات بالاستجابة", "title": "إلزام الجهات بالاستجابة", "status": "مستحدثة", "old_text": "لا يوجد مقابل في النظام القديم", "new_text": "على جميع الجهات المختصة - ومنها الجهات المشرفة على الأموال أو تسجيلها - الاستجابة لأوامر وقرارات المحكمة ذات الصلة بالتنفيذ وإجراءاته خلال مدة لا تتجاوز (ثلاثة) أيام عمل من تاريخ إبلاغ تلك الجهات بها ؛ وذلك فيما لم يرد في شأنه نص خاص في النظام.", "change_type": "تقنين الإلزام الإداري بتحديد مواعيد مقيدة .", "effect": "تقليص التأخير الإداري الذي كان أحد أبرز عوائق التنفيذ عملياً .", "linkage": "التكامل الإلكتروني مع منصات وزارة العدل .", "old_number": null, "new_number": "الثالثة", "sort_id": 3}, {"id": 4, "header": "المادة الثانية في النظام القديم اختصاصات قاضي التنفيذ /المادة الرابعة في النظام الجديد الاختصاص", "title": "الاختصاص", "status": "معدلة", "old_text": "عدا الأحكام والقرارات الصادرة في القضايا الإدارية والجنائية يختص قاضي التنفيذ بسلطة التنفيذ الجبري والإشراف عليه , ويعاونه في ذلك من يكفي من مأموري التنفيذ، وتتبع أمامه الأحكام الواردة في نظام المرافعات الشرعية مالم ينص النظام على خلاف ذلك.", "new_text": "1- عدا تنفيذ العقوبات الجزائية وما تختص به محاكم ديوان المظالم، تختص المحكمة بالإشراف على التنفيذ وإجراءاته، وبالتنفيذ الجبري وإجراءاته، وتتولى الفصل في منازعات التنفيذ، وإصدار الأحكام والأوامر والقرارات المتعلقة بالتنفيذ. 2-مع مراعاة ما قضت به المادة (التاسعة) من النظام، تتولى المحكمة التحقق من استيفاء السند التنفيذي شروطه النظامية دون النظر إلى أصل الحق محل السند التنفيذي. 3- تحال طلبات التنفيذ وفق قواعد التوزيع التي تحددها اللائحة.", "change_type": "تكريس مبدأ \"شكلية التنفيذ\" والفصل التام بين قضاء التنفيذ وقضاء الموضوع، مع تحويل الاختصاص من القاضي الفرد إلى المحكمة كمؤسسة .", "effect": "منع تعطيل التنفيذ بدفوع موضوعية، وتحقيق \"العدالة الناجزة\" من خلال حصر دور المحكمة في التحقق من الشروط النظامية للسند فقط .", "linkage": "ينسجم مع التوجه نحو تعزيز الموثوقية في السندات التنفيذية وتطوير البيئة القانونية لحماية الحقوق المالية والائتمانية .", "old_number": "الثانية", "new_number": "الرابعة", "sort_id": 4}, {"id": 5, "header": "المادة الخامسة (جديد) – تعدد جهات الحجز", "title": "تعدد جهات الحجز", "status": "مستحدثة", "old_text": "لا يوجد مقابل في النظام القديم. .", "new_text": "إذا تعددت الجهات التي أصدرت أمر الحجز على مال من أموال المنفذ ضده فعلى المحجوز لديه المال إشعار الجهة التي أصدرت أمر الحجز اللاحق بالحجز الأول وتحدد اللائحة الأحكام اللازمة لما ورد في هذه المادة .", "change_type": "تنسيق إجرائي وحماية من تنازع الحجوز", "effect": "صون أموال المحجوز عليه من الإهدار وحماية حقوق جميع الدائنين.", "linkage": "", "old_number": null, "new_number": "الخامسة", "sort_id": 5}, {"id": 6, "header": "المادة الخامسة (قديم) / المادة السادسة (جديد) – تنازع الاختصاص التنفيذي", "title": "تنازع الاختصاص التنفيذي", "status": "معدلة", "old_text": "إذا تعددت الدوائر المختصة بالتنفيذ ؛ فيكون لقاضي التنفيذ -الذي قام بأول إجراء تنفيذي -الإشراف على التنفيذ وتوزيع حصيلته ، وله أن ينيب قاضي تنفيذ في دائرة أخرى للتنفيذ على مال المدين، وتحدد اللائحة الأحكام اللازمة لذلك.", "new_text": "استثناءً من أحكام الاختصاص المنصوص عليها في النظام ونظام التنفيذأمم ديوان المظالم والأنظمة الأخرى ذات الصلة، إذا اجتمع حجز تنفيذي من جهتين قضائيتين أو من جهة قضائية مع جهة إدارية فتعد جميع أمواله محجوزة لمصلحة كافة طلبات التنفيذ وتختص الجهة القضائيةالتي أصدرت أمر الحجز أولاً بالإشراف على الحجوزات المترتبة على تلك الطلبات وما يتعلق بالبيع وتوزيع الحصيلة وإصدار الأحكام والأوامر والقرارات المتعلقة بذلك؛ وفق الأحكام المنصوص عليها في نظامها المعني بالتنفيذ. يصدر الوزير بالتنسيق مع المجلس ومجلس القضاء الإداري- قواعد تبين الأحكام والإجراءات اللازمة لما ورد في هذه المادة", "change_type": "توسيع نطاق التنسيق بين الجهات المختصة", "effect": "الحد من التعارض بين أوامر التنفيذ الصادرة من جهات متعددة وتعزيز وحدة الإجراء.", "linkage": "", "old_number": "الخامسة", "new_number": "السادسة", "sort_id": 6}, {"id": 7, "header": "المادة التاسعة (قديم) / المادة السابعة (جديد) – السندات التنفيذية", "title": "السندات التنفيذية", "status": "معدلة", "old_text": "لا يجوز التنفيذ الجبري إلا بسند تنفيذي لحق محدد المقدار حال الأداء، والسندات التنفيذية هي: الأحكام والقرارات والأوامر الصادرة من المحاكم. أحكام المحكمين المذيلة بأمر التنفيذ وفقًا لنظام التحكيم. محاضر الصلح التي تصدرها الجهات المخولة بذلك أو التي تصادق عليها المحاكم. الأوراق التجارية . العقود والمحررات الموثقة . / الأحكام والاوامر القضائية وأحكام المحكمين والمحررات الموثقة الصادرة في بلد أجنبي. الأوراق العادية التي يقر باستحقاق محتواها كليًا او جزئيًا. العقود والأوراق الأخرى التي لها قوة سند التنفيذ بموجب النظام.", "new_text": "لا يجوز التنفيذ الجبري إلا بسند تنفيذي، اقتضاءً لحق معين حال الأداء، والسندات التنفيذية المشمولة بأحكام النظام – دون إخلال بالسندات التنفيذية المشمولة بنظام التنفيذ أمام ديوان المظالم -هي: الأحكام والأوامر والقرارات النهائية والأحكام المشمولة بالنفاذ المعجّل؛ الصادرة من محاكم المملكة. أحكام المحكمين وفقا للنصوص النظامية ذات الصلة. ج- اتفاقات التسوية ووثائق الصلح الموثقة وفقا لنظام التوثيق أو التي تصدرها الجهات المخولة بذلك نظامًا. د- الكمبيالات والسندات لأمر متى كانت مسجلة في المنصات الإلكترونية الوطنية وتبين اللائحة الشروط والإجراءات المتعلقة بتسجيل الكمبيالات والسندات لأمر في تلك المنصات. ه- الشيكات. و- العقود والإقرارات الموثقة وفقًا لنظام التوثيق. ز- الأحكام والأوامر القضائية وأحكام المحكمين واتفاقات التسوية والمحررات الموثقة الصادرة من دولة أجنبية وفق ما قضت به المادة (التاسعة) من النظام. ح- العقود والمحررات التي لها حكم السندات التنفيذية بموجب نظام او قرار صادر من مجلس الوزراء. 2- تحدد اللائحة الإجراءات اللازمة لما ورد في هذه المادة.", "change_type": "أُلغي النص المتعلق بالأوراق العادية التي يُقر باستحقاق محتواها، لينتهي الاعتداد اللاحق بالإقرار أمام قاضي التنفيذ كوسيلة لإكساب الورقة العادية الصفة التنفيذية، وقصر السندات التنفيذية على الحالات التي حددها النظام على سبيل الحصر. واشتُرط تسجيل الكمبيالات والسندات لأمر في المنصات الإلكترونية الوطنية لاكتسابها وصف السند التنفيذي (الفقرة د)، وأُدرجت الإقرارات الموثقة ضمن السندات التنفيذية بنصٍ صريح وفقًا للفقرة (و)، كما أُضيفت اتفاقات التسوية ضمن السندات التنفيذية الأجنبية (الفقرة ز)، واستُحدث قرار صادر من مجلس الوزراء بوصفه مصدرًا مستقلًا للسندات التنفيذية (الفقرة ح).", "effect": "", "linkage": "", "old_number": "التاسعة", "new_number": "السابعة", "sort_id": 7}, {"id": 8, "header": "المادة الثامنة (جديد) – التنفيذ المشروط", "title": "التنفيذ المشروط", "status": "مستحدثة", "old_text": "المادة الحادية عشرة : مع التقيد بما تقضي به المعاهدات والاتفاقيات؛ لا يجوز لقاضي التنفيذ تنفيذ الحكم والأمر الأجنبي إلا على أساس المعاملة بالمثل وبعد التحقق مما يأتي : 1-أن محاكم المملكة غير مختصة بالنظر في المنازعة التي صدر فيها الحكم أو الأمر، وأن المحاكم الأجنبية التي أصدرته مختصة بها وفقًا لقواعد الاختصاص القضائي الدولي المقررة في أنظمتها . 2- أن الخصوم في الدعوى التي صدر فيها الحكم قد كلفوا بالحضور، ومثلوا تمثيلاً صحيحًا، ومكنوا من الدفاع عن أنفسهم . 3-أن الحكم أو الأمر أصبح نهائيًا وفقًا لنظام المحكمة التي أصدرته . 4- أن الحكم أو الأمر لا يتعارض مع حكم أو أمر صدر في الموضوع نفسه من جهة قضائية مختصة في المملكة . 5-ألا يتضمن الحكم أو الأمر ما يخالف أحكام النظام العام في المملكة . المادة الثانية عشرة : تسري أحكام المادة السابقة على أحكام المحكمين الصادرة في بلد أجنبي . المادة الثالثة عشرة : المحررات الموثقة الصادرة في بلد أجنبي، يجوز الأمر بتنفيذها بالشروط نفسها المقررة في أنظمة هذا البلد لتنفيذ المحررات الموثقة القابلة للتنفيذ الصادرة في المملكة، وعلى أساس المعاملة بالمثل . المادة الرابعة عشرة : تقدم الأحكام، والأوامر القضائية، وأحكام المحكمين، والمحررات الموثقة الصادرة في بلد أجنبي؛ إلى قاضي التنفيذ المختص بتنفيذ الأحكام الأجنبية؛ ليتحقق من استيفاء السند شروط التنفيذ، ويضع عليه خاتم التنفيذ .", "new_text": "المادة التاسعة:1- مع مراعاة ما تقضي به التزامات المملكة بموجب المعاهدات والاتفاقيات الدولية، لا يجوز للمحكمة تنفيذ الحكم أو الأمر الأجنبي إلا على أساس المعاملة بالمثل وبعد التحقق من توافر الشروط الآتية: أ- ألا تكون الدعوى الصادر فيها الحكم أو الأمر الأجنبي مما تنفرد بالاختصاص بنظره جهة قضائية في المملكة. ب - ألا تكون هناك دعوى مماثلة قائمة في المملكة سابقة على قيد الدعوى التي صدر الحكم أو الأمر الأجنبي فيها. ج- أن الخصوم في الدعوى التي صدر فيها الحكم قد كلفوا بالحضور، ومثلوا تمثيلاً صحيحًا، ومكنوا من الدفاع عن أنفسهم. د أن الحكم أو الأمر الأجنبي أصبح نهائيا، وفقا للأحكام المنظمة للجهة القضائية المختصة التي أصدرته. هـ - أن الحكم أو الأمر الأجنبي لا يتعارض مع حكم أو أمر سابق - في الموضوع نفسه -صدر من جهة قضائية مختصة في المملكة. و - ألا يتضمن الحكم أو الأمر الأجنبي ما يخالف أحكام النظام العام في المملكة. ٢- يكون تنفيذ أحكام المحكمين واتفاقات التسوية الصادرة في دولة أجنبية؛ وفق ما تقضي به التزامات المملكة بموجب المعاهدات والاتفاقيات الدولية، وبعد التحقق من توافر الشروط المنصوص عليها في الفقرة (1) من هذه المادة. ٣- يكون تنفيذ المحررات الموثقة الصادرة في دولة أجنبية بعد التحقق من توافر الشروط المقررة في أنظمة تلك الدولة، وعلى أساس المعاملة بالمثل فيما بين المملكة وتلك الدولة فيما يتصل بشروط تنفيذ المحررات.", "change_type": "تمكين التنفيذ المباشر للالتزامات المتقابلة \" ؛ باستحداث مسار يتيح تنفيذ السندات المعلقة على شرط دون الحاجة لرفع دعوى قضائية جديدة لإثباته، وذلك عبر استبدال الحكم القضائي بـ \" تقرير من جهة خبرة معتمدة \" يثبت تحقق الالتزام", "effect": "تنشيط السيولة في قطاع الأعمال", "linkage": "يتعامل مع حالات كثيرة في عقود الإنشاء والمقاولات وعقود تسليم البضائع", "old_number": null, "new_number": "الثامنة", "sort_id": 8}, {"id": 60, "header": "المادة التاسعة (جديد)", "title": "(نص المادة لم يُستخرج بعد من ملف المقارنة المصدر)", "status": "معدلة", "old_text": "النص غير متوفر في هذه النسخة — يحتاج إضافة يدوية من ملف المقارنة الأصلي.", "new_text": "النص غير متوفر في هذه النسخة — يحتاج إضافة يدوية من ملف المقارنة الأصلي.", "change_type": "", "effect": "", "linkage": "", "old_number": null, "new_number": "التاسعة", "sort_id": 9}, {"id": 9, "header": "المادة العاشرة (جديد) – إجبار الدائن على الاستيفاء", "title": "إجبار الدائن على الاستيفاء", "status": "مستحدثة", "old_text": "لا يوجد مقابل في النظام القديم.", "new_text": "للمدين أن يتقدم إلى المحكمة بطلب استيفاء الدائن لحق معين حال الأداء وثابت بموجب سند تنفيذي امتنع الدائن عن استيفاه، وتأمر الحكمة في هذه الحالة الدائن باستيفاء حقه، فإن تعذر استيفاء الدائن للحق أثبتت المحكمة ذلك، واتخذت الإجراءات التي تكفل للمدين الوفاء بالحق الثابت في ذمته؛ وفقا لما تحدده اللائحة. و في جميع الأحوال، تعد التكاليف المترتبة على تنفيذ ما ورد في هذه المادة - إن وجدت- من مصروفات التنفيذ.", "change_type": "حماية المدين من تعسف الدائن", "effect": "صون المدين من التعسف وتخفيف العبء المالي الناجم عن الامتناع التعسفي للدائن.", "linkage": "يتوافق مع أحكام الوفاء بالدين في نظام المعاملات المدنية.", "old_number": null, "new_number": "العاشرة", "sort_id": 10}, {"id": 10, "header": "المادة الحادية عشرة (جديد) – التقادم التنفيذي", "title": "التقادم التنفيذي", "status": "مستحدثة", "old_text": "لا يوجد مقابل في النظام القديم.", "new_text": "دون إخلال بما تقضي به الأحكام النظامية ذات الصلة لا يُقبل طلب التنفيذ بموجب سند تنفيذي مضى على تاريخ استحقاقه أكثر من عشر سنوات.", "change_type": "تقنين مدة تقادم تنفيذية (10 سنوات)", "effect": "تعزيز الاستقرار القانوني للعلاقات المالية وحماية المدينين من ملاحقة لا نهاية لها.", "linkage": "يتكامل مع نظام المعاملات المدنية في شأن أحكام التقادم.", "old_number": null, "new_number": "الحادية عشرة", "sort_id": 11}, {"id": 11, "header": "المادة الثانية عشرة (جديد) – الإخطار المسبق", "title": "الإخطار المسبق", "status": "مستحدثة", "old_text": "لا يوجد مقابل في النظام القديم.", "new_text": "تحدد اللائحة الحالات التي يجب فيها أن يُخطر الدائن المدين بأداء الحق محل السند التنفيذي قبل قيد طلب التنفيذ.", "change_type": "استحداث إجراء الإخطار المسبق للتنفيذ", "effect": "إتاحة الفرصة للمدين للوفاء طوعاً قبل بدء الإجراءات الجبرية مما يُقلل العبء على المحاكم.", "linkage": "يُقيد صلاحية الدائن المطلقة في بدء التنفيذ الفوري، ويتقاطع مع مبادئ العدالة الوقائية.", "old_number": null, "new_number": "الثانية عشرة", "sort_id": 12}, {"id": 12, "header": "المادة 34 (قديم) / المادة الثالثة عشرة (جديد) – قيد طلب التنفيذ والأمر به", "title": "قيد طلب التنفيذ والأمر به", "status": "معدلة", "old_text": "1- يتم التنفيذ بناءً على طلب يقدمه طالب التنفيذ إلى قاضي التنفيذ، وفقًا للنموذج الذي تحدده اللائحة . 2- أ - يتحقق قاضي التنفيذ من وجود الصيغة التنفيذية على السند التنفيذي الوارد في الفقرات (1، 2، 3) من المادة (التاسعة) من هذا النظام . ب - فيما عدا ما ذكر في الفقرة (2-أ) يتحقق قاضي التنفيذ من استيفاء السندات التنفيذية - المذكورة في الفقرات (4، 5، 6، 7، 8) من المادة (التاسعة) - الشروط النظامية، ويضع خاتم التنفيذ عليها، متضمناً عبارة (سند للتنفيذ) مقروناً باسم قاضي التنفيذ، ومحكمته، وتوقيعه . 3-يصدر قاضي التنفيذ فورًا أمرًا بالتنفيذ إلى المدين مرافقة له نسخة من السند التنفيذي مختومة بخاتم المحكمة بمطابقتها للأصل، ويبلغ المدين وفق أحكام التبليغ التي تحددها اللائحة، فإن تعذر إبلاغ المدين خلال عشرين يومًا من تاريخ صدور أمر التنفيذ؛ أمر قاضي التنفيذ بنشر الإبلاغ فورًا في الصحيفة اليومية الأوسع انتشارًا في منطقة مقر المحكمة، وتستوفى من المدين نفقة الإعلان مع استيفاء الحق . 4 - يتم التنسيق بين وزارة العدل، والجهات ذات العلاقة؛ للإفصاح عن عناوين الأشخاص الذين لا يعرف لهم محل إقامة .", "new_text": "1- تقيد الإدارة المختصة طلب التنفيذ بعد تحققها من استيفائه المتطلبات المنصوص عليها في النظام واللائحة، وفقا للإجراءات والنماذج التي تحددها الوزارة. ٢- إذا قررت الإدارة المختصة عدم قيد طلب التنفيذ، لعدم استيفاء المتطلبات وفقا لما ورد في الفقرة (١) من هذه المادة؛ فعلى طالب القيد استيفاء ما نقص خلال (عشرة) أيام عمل من تاريخ إبلاغه بذلك، وإن لم يستوف ما نقص خلال هذه المدة عد الطلب مرفوضا. 3- لطالب القيد الظلم من عدم القيد خلال (عشرة) أيام عمل من تاريخ اعتبار طلبه مرفوضاً، وفق أحكام التظلم على القرارات المنصوص عليها في المادة (السادسة والأربعين) من النظام.", "change_type": "فصل الدور الإداري عن القضائي في مرحلة القيد", "effect": "تخفيف العبء عن القضاء في مرحلة الفرز والقيد وتسريع الإجراءات.", "linkage": "يتوافق مع التوجه نحو رقمنة الإجراءات القضائية ومبادرات التحول الرقمي في وزارة العدل.", "old_number": "34", "new_number": "الثالثة عشرة", "sort_id": 13}, {"id": 13, "header": "المادة 34/ف3 (قديم) / المادة الرابعة عشرة (جديد) – التبليغ الإلكتروني", "title": "التبليغ الإلكتروني", "status": "معدلة", "old_text": "المادة السادسة عشرة : لقاضي التنفيذ أن يأمر بالإفصاح عن أموال المدين بمقدار ما يفي بالسند التنفيذي، ويصدر الأمر بالإفصاح والحجز بعد إبلاغ المدين بأمر التنفيذ. ومع ذلك إذا ظهر لقاضي التنفيذ أن المدين مماطل من واقع سجله الائتماني، أو من قرائن الحال؛ جاز له الأمر بالإفصاح عن أمواله وحجزها قبل إبلاغه بأمر التنفيذ . المادة السابعة عشرة : على جميع الجهات المختصة، أو المشرفة على تسجيل الأموال، وعلى مدين المدين، ومحاسب المدين، وموظفيه الإفصاح عن أصول المدين بناء على أمر قاضي التنفيذ خلال مدة لا تتجاوز عشرة أيام من تاريخ إبلاغ تلك الجهات .", "new_text": "1- على المنفذ ضده أن يفصح عن أمواله من تاريخ إبلاغه بأمر التنفيذ أو من تاريخ الإعلان وفقا ما قضت به المادة (الرابعة عشرة) من النظام. ٢- على المحكمة -بناء على طلب التنفيذ- إذا توافرت قرائن تدل على إخفاء المنفذ ضده أمواله أو تهريبها أن تأمر بالإفصاح كلا من: أ- وكلاء المنفذ ضده ومن تربطهم علاقة تعاقد عمالية. ب- المتعاملين ماليا مع المنفذ ضده، ومدينيه، والمشتبه في محاباتهم له. ج- المحجوز لديه مال من أموال المنفذ ضده. ذلك في حدود ما يحقق الغرض من الإفصاح. وعلى المأمور بالإفصاح أن يستجيب لذلك خلال مدة لا تتجاوز (عشرة) أيام عمل من تاريخ إبلاغه به عبر الوسيلة المناسبة التي تحددها اللائحة. ٣ - على الجهة المشرفة على الأموال أو تسجيلها تزويد المحكمة بما لديها من بيانات أو معلومات بناء على أمر صادر من المحكمة، خلال مدة لا تتجاوز (ثلاث) أيام عمل من تاريخ إبلاغها بالأمر.", "change_type": "رقمنة التبليغ وإلغاء الاشتراط الورقي", "effect": "تخفيض التكاليف الإجرائية.", "linkage": "نظام مكافحة غسل الأموال", "old_number": "34 (الفقرة 3)", "new_number": "الرابعة عشرة", "sort_id": 14}, {"id": 61, "header": "المادة الخامسة عشرة (جديد)", "title": "(نص المادة لم يُستخرج بعد من ملف المقارنة المصدر)", "status": "معدلة", "old_text": "النص غير متوفر في هذه النسخة — يحتاج إضافة يدوية من ملف المقارنة الأصلي.", "new_text": "النص غير متوفر في هذه النسخة — يحتاج إضافة يدوية من ملف المقارنة الأصلي.", "change_type": "", "effect": "", "linkage": "", "old_number": null, "new_number": "الخامسة عشرة", "sort_id": 15}, {"id": 14, "header": "المادة الثامنة عشرة (قديم) / المادة السادسة عشرة (جديد) – التكامل الإلكتروني", "title": "التكامل الإلكتروني", "status": "معدلة", "old_text": "يجب على جهات تسجيل الأموال، أو الجهات المشرفة عليها أو على إدارتها بحسب الأحوال ما يأتي : 1- إنشاء إدارات مختصة للتعامل مع أوامر قضاء التنفيذ المختلفة 2- إعداد قواعد بيانات بملكية الأموال سواء كانت أصولاً عقارية، أو مالية، أو تجارية، أو فكرية، أو أي أصل آخر . 3- الالتزام بالمحافظة على سرية البيانات والمعلومات، التي اطلع عليها الموظفون بسبب عملهم، وألا يفشوها لأي سبب كان . 4- وضع آلية تقنية لضمان عدم الدخول على البيانات إلا بإذن . 5- مع مراعاة ما تقضي به الأنظمة، على هذه الإدارات إبلاغ أصحاب الأموال بما تم الإفصاح عنه من بيانات بعد مدة تحددها اللائحة .", "new_text": "على الجهة المشرفة على الأموال أو تسجيلها أو الكيانات التي تشرف عليها وفق النصوص النظامية ذات العلاقة – بحسب الأحوال- القيام بالآتي: 1- إنشاء أو تحديد إدارة (أو أكثر) لتكون مسؤولة عن معالجة الأوامر والقرارات المتعلقة بالتنفيذ. 2-إعداد قواعد بيانات بملكية الأموال الثابتة أو المنقولة وفق ما تحدده اللائحة. 3- تمكين الربط والتكامل الإلكترونيين مع أنظمة الوزارة الإلكترونية ذات الصلة بطلبات التنفيذ.", "change_type": "رقمنة إلزامية للجهات المسجِّلة", "effect": "الأتمتة الإجرائية في نقل البيانات بين الجهات القضائية والمسجِّلة وتقليص الأخطاء الإجرائية", "linkage": "يرتبط مباشرة بمستهدفات \"التحول الرقمي\" في رؤية 2030.", "old_number": "الثامنة عشرة", "new_number": "السادسة عشرة", "sort_id": 16}, {"id": 15, "header": "المادة التاسعة عشرة (قديم) / المادة السابعة عشرة(جديد) – الإفصاح عن الاموال", "title": "تبادل الإفصاح عن الأموال", "status": "منقولة", "old_text": "يتم تبادل الإفصاح عن الأموال مع الدول الأخرى بناءً على أمر من قاضي التنفيذ، وعلى أساس المعاملة بالمثل، ويستثنى من هذا الإفصاح ما نصت عليه الأنظمة، وقرارات مجلس الوزراء، وما يؤثر على الأمن الوطني للمملكة.", "new_text": "مع مراعاة ما تقضي به التزامات المملكة بموجب المعاهدات والاتفاقيات الدولية، يكون تبادل الإفصاح عن الأموال مع الدول الأخرى على أساس المعاملة بالمثل، وفي حدود ما يحقق الغرض من تبادل الإفصاح وبما لا يترتب عليه مساس بالأمن الوطني.", "change_type": "إعادة صياغة تراعي الالتزامات الدولية وتُقيّد نطاق الإفصاح بما يحقق غرضه دون المساس بالأمن الوطني.", "effect": "", "linkage": "", "old_number": "التاسعة عشرة", "new_number": "السابعة عشرة", "sort_id": 17}, {"id": 16, "header": "المادة 46 (قديم) / المادة الثامنة عشرة (جديد) – آليات التنفيذ الجبري", "title": "آليات التنفيذ الجبري", "status": "معدلة", "old_text": "إذا لم ينفذ المدين، أو لم يفصح عن أموال تكفي للوفاء بالدين خلال خمسة أيام من تاريخ إبلاغه بأمر التنفيذ، أو من تاريخ نشره بإحدى الصحف إذا تعذر إبلاغه؛ عُدَّ مماطلاً، وأمر قاضي التنفيذ حالاً بما يأتي : 1- منع المدين من السفر \"ولايخل صدور أمر المنع من السفر – وفقا للفقرة (1) من هذه المادة – بتنفيذ قرار الإبعاد الصادر من الجهة المختصة\" . 2- إيقاف إصدار صكوك التوكيل منه بصفة مباشرة، أو غير مباشرة في الأموال وما يؤول إليها . 3- الإفصاح عن أمـوال المدين القائمة وعما يرد إليه مستقبلاً، وذلك بمقدار ما يفي بالسند التنفيذي، وحجزها، والتنفيذ عليها، وفقًا لأحكام هذا النظام . 4- الإفصاح عن رخص وسجلات أنشطة المدين التجارية، والمهنية . 5- إشعار مرخص له بتسجيل المعلومات الائتمانية بواقعة عدم التنفيذ . ولقاضي التنفيذ أن يتخذ - إضافة إلى ما سبق بحسب الحال - أيًا من الإجراءات الآتية : أ - منع الجهات الحكومية من التعامل مع المدين، وحجز مستحقاته المالية لديها، وأن عليها إشعار قاضي التنفيذ بذلك . ‌ب - منع المنشآت المالية من التعامل معه بأي صفة . ‌ج - الأمر بالإفصاح عن أموال زوج المدين، وأولاده، ومن تشير القرائن إلى نقل الأموال إليه، أو محاباته. وإذا تبين الاشتباه بأن هناك أدلة أو قرائن على إخفاء الأموال، يحال الطلب إلى قاضي الموضوع للنظر فيه . ‌د - حبس المدين، وفقًا لأحكام هذا النظام .", "new_text": "1- إذا مضت (خمسة) أيام عمل من تاريخ إبلاغ المنفذ ضده بأمر التنفيذ أو من تاريخ الإعلان وفق ما قضت به المادة (الرابعة عشرة) من النظام، ولم ينفذ المنفذ ضده التزامه؛ تبدأ فورا إجراءات التنفيذ الجبري في الأموال المنصوص عليها في الفقرة (۲) من هذه المادة، ما لم يقدم المنفذ ضده ضماناً بنكياً يكفي للوفاء بالحق، فيمهل مدة (عشرة) أيام عمل إضافية. ٢- تكون إجراءات التنفيذ الجبري في الأموال وفق الآتي: أ- إشعار الجهات المرخص لها نظامًا بتسجيل المعلومات الائتمانية بواقعة عدم التنفيذ. ب حجز أموال المنفذ ضده وما يرد إليه مستقبلاً، والتنفيذ عليها، بما في ذلك مستحقاته لدى الجهات العامة؛ وفقا للأحكام المنظمة لذلك. ٣- للمحكمة - إضافةً إلى ما سبق ذكره في الفقرة (۲) من هذه المادة فرض غرامة لا تزيد على (خمسة آلاف) ريال يوميًا على المنفذ ضده عن كل يوم يمضي دون إتمام التنفيذ على ألا تتجاوز حدا تحدد اللائحة مقداره. وللمحكمة إلغاء الغرامة أو جزء منها إذا نفذ المنفذ ضده ما عليه من التزام. ولا تستوفى الغرامة إلا بعد الانتهاء من توزيع حصيلة التنفيذ. وتؤول حصيلة الغرامة الإجمالية إلى خزينة الدولة. ٤- تحدد اللائحة الآليات التي يجوز للمحكمة اتخاذها لإنفاذ الإجراءات المنصوص عليها في الفقرتين (۲) و (۳) من هذه المادة.", "change_type": "تجزئة إجراءات التنفيذ وإزالة التلقائية في الحجز.", "effect": "تحقيق توازن بين ضمان حق الدائن وحماية المدين من إجراءات قد تكون مبالغاً فيها.", "linkage": "", "old_number": "46", "new_number": "الثامنة عشرة", "sort_id": 18}, {"id": 17, "header": "المادة 46/ف1 (قديم) / المادة التاسعة عشرة (جديد) – المنع من السفر", "title": "المنع من السفر", "status": "معدلة", "old_text": "من إجراءات المماطلة: منع المدين من السفر فور ثبوت المماطلة خلال خمسة أيام (إجراء تلقائي).", "new_text": "1- إذا انقضت المدة، المنصوص عليها في الفقرة (۱) من المادة (الثامنة عشرة من النظام)، تأمر المحكمة بمنع المنفذ ضده من السفر إلى خارج المملكة - بناءً على طلب يقدم من طالب التنفيذ -مدة لا تتجاوز (ثلاث) - سنوات، ويجوز للمحكمة تمديدها بناء على طلب جديد بذلك يقدم من طالب التنفيذ على ألا تتجاوز مدد المنع من السفر إلى خارج المملكة (ست) سنوات. وفي جميع الأحوال، ينقضي الأمر بالمنع من السفر بانتهاء طلب التنفيذ. ٢- لا يخل صدور أمر المنع من السفر إلى خارج المملكة بسلطة الجهات المختصة في إنهاء إقامة غير السعودي، أو أمره بمغادرة المملكة أو إبعاده؛ وذلك وفقًّا لما تقضي به النصوص النظامية ذات الصلة. ٣- ترفع المحكمة الأمر بالمنع من السفر إلى خارج المملكة في الأحوال الآتية: أ- إذا ظهرت - بموجب تقرير طبي معتمد- حاجة المنفذ ضده إلى العلاج خارج المملكة. ب- إذا كان مجموع الدين أو الديون محل التنفيذ من المبالغ اليسيرة وفق ما تحدده اللائحة. ج- إذا كانت مهنة أو حرفة أو وظيفة المنفذ ضده تستوجب السفر إلى خارج المملكة. د- إذا كان المنع من السفر إلى خارج المملكة سيترتب عليه ضرر بالمنفذ ضده. هـ- إذا أفصح المنفذ ضده عن أموال تكفي للوفاء بالدين محل التنفيذ ولا يحول مانع من الاستيفاء منها. 4- تحدد اللائحة الضوابط اللازمة لإنفاذ ما ورد في هذه المادة.", "change_type": "تحديد مدة المنع من السفر واشتراط الطلب وإضافة استثناءات إنسانية", "effect": "صون حقوق الأفراد والحد من التوظيف التعسفي لهذا الإجراء.", "linkage": "", "old_number": "46 (الفقرة 1)", "new_number": "التاسعة عشرة", "sort_id": 19}, {"id": 18, "header": "المادة العشرون (جديد) – تتبع الأموال بقرائن الإخفاء", "title": "تتبع الأموال بقرائن الإخفاء", "status": "مستحدثة", "old_text": "لا يوجد مقابل مباشر في النظام القديم.", "new_text": "١- في حال عدم تنفيذ المنفذ ضده لأمر التنفيذ بعد البدء في إجراءات التنفيذ الجبري، تأمر المحكمة بتتبع أمواله بناءً على طلب يقدم من طالب التنفيذ؛ متى توافرت قرائن تدل على إخفاء المنفذ ضده أموالَه أو تهريبها. وتعدّ تكاليف تتبع الأموال من مصروفات التنفيذ. 2- في حدود ما يحقق الغرض من الاطلاع على البيانات أو المعلومات المرتبطة باستيفاء الحق محل السند التنفيذي، تُمكّن المحكمة طالب التنفيذ - بناءً على طلبه- من الاطلاع على البيانات أو المعلومات التي لديها عن أموال المنفذ ضده، وللمحكمة أن تأمر الجهة المشرفة على الأموال أو تسجيلها بتمكين من أسند إليه عمل من أعمال التنفيذ من الاطلاع على بيانات ومعلومات أموال المنفذ ضده المتوافرة لديها. وتحدد اللائحة الضوابط اللازمة لما ورد في هذه الفقرة.", "change_type": "استحداث آلية قضائية لتتبع الأموال المُخفاة", "effect": "تقليص ظاهرة إخفاء الأموال التي كانت من أبرز معوقات التنفيذ.", "linkage": "يتقاطع مع نظام مكافحة غسيل الأموال", "old_number": null, "new_number": "العشرون", "sort_id": 20}, {"id": 19, "header": "المادة 47 (قديم) / المادة الحادية والعشرين والثانية والعشرون(جديد) – استجواب المتعاملين مع المدين", "title": "استجواب المتعاملين مع المدين", "status": "معدلة", "old_text": "لقاضي التنفيذ استجواب المدين، ومحاسبه، وموظفيه، أو المتعاملين معه المشتبه في محاباتهم له ومدين المدين؛ لتتبع أمواله، وله ندب خبير لتتبع أمواله .", "new_text": "١- للمحكمة -بناءً على طلب طالب التنفيذ- إذا توافرت قرائن تدل على إخفاء المنفذ ضده أمواله أو تهريبها أن تقوم بنفسها، أو من خلال أمر تصدره للإدارة المختصة أو للقطاع الخاص المرخص بتتبع الأموال، باستجواب المنفذ ضده أو من يشتبه في تهريب الأموال إليه من: أقاربه، ووكلائه، ومن تربطه بهم علاقة تعاقد عمالية، والمتعاملين معه ماليًّا، ومدينيه، والمشتبه في محاباتهم له؛ وفق ما يظهر من القرائن التي تدل على ذلك.\n٢- على المطلوب للاستجواب -وفقًا لما ورد في الفقرة (١) من هذه المادة- أن يستجيب لذلك خلال مدة لا تتجاوز (ثلاثة) أيام عمل من تاريخ إبلاغه بالأمر عبر الوسيلة المناسبة التي تحددها اللائحة ويجوز للمحكمة عند الاقتضاء الأمر بإحضاره بالقوة الجبرية لاستجوابه أمام المحكمة.\n٣- للمحكمة أن يأمر الجهة المختصة، أو الجهة المشرفة على الأموال أو تسجيلها، بتتبع أموال المنفذ ضده ومن يشتبه في تهريب الأموال إليه، وتزويد المحكمة بتقرير بذلك.", "change_type": "تعزيز صلاحيات المحكمة في الاستجواب القسري وتوسيع دائرة من يشملهم الاستجواب.", "effect": "تضييق الخناق على المنفذ ضده المتهرب وتعزيز مصداقية التنفيذ.", "linkage": "يستلزم تنسيقاً مع قوات الأمن لتنفيذ أوامر الإحضار الجبري. منقولة دون تغيير جوهري", "old_number": "47", "new_number": "الحادية والعشرون", "sort_id": 21}, {"id": 58, "header": "المادة الثانية والعشرون (جديد) – ضوابط تتبع الأموال", "title": "ضوابط تتبع الأموال", "status": "مستحدثة", "old_text": "لا يوجد نص مقابل في النظام القديم.", "new_text": "تحدد اللائحة ضوابط وإجراءات تتبع الأموال المنصوص عليها في هذا الفصل.", "change_type": "استحداث تفويض تنظيمي صريح للائحة لتحديد ضوابط وإجراءات تتبع الأموال.", "effect": "", "linkage": "", "old_number": null, "new_number": "الثانية والعشرون", "sort_id": 22}, {"id": 20, "header": "المادة العشرون (قديم) / المادة الثالثة والعشرون (جديد) – الحجز التنفيذي", "title": "ضمان أموال المنفذ ضده والحجز عليها", "status": "منقولة", "old_text": "جميع أموال المدين ضامنة لديونه، ويترتب على الحجز على أموال المدين عدم نفاذ ما يقوم به من تصرف في أمواله المحجوزة.", "new_text": "١- جميع أموال المنفذ ضده ضامنة لديونه من تاريخ إخطاره بطلب أداء الحق وفق ما قضت به المادة (الثانية عشرة) من النظام أو من تاريخ إبلاغه بأمر التنفيذ أو من تاريخ الإعلان وفق ما قضت به المادة (الرابعة عشرة) من النظام.\n٢- يقع الحجز والتنفيذ على مال المنفذ ضده المحجوز حجزًا تحفظيًّا من جهة مختصة، وعلى الجهة المحجوز لديها مال المنفذ ضده حجزًا تحفظيَّا إشعار الحاجز حجزًا تحفظيًّا بإيقاع الحجز التنفيذي. وتحدد اللائحة الإجراءات اللازمة لإنفاذ ما ورد في هذه الفقرة.", "change_type": "تحديد لحظة نشوء الضمان بربطها بتاريخ الإخطار أو الإبلاغ أو الإعلان، واستحداث آلية تنسيق بين جهة الحجز التحفظي والحجز التنفيذي.", "effect": "", "linkage": "", "old_number": "العشرون", "new_number": "الثالثة والعشرون", "sort_id": 23}, {"id": 21, "header": "المادة الرابعة والعشرون (جديد) – دعوى إبطال تصرفات المدين", "title": "دعوى إبطال تصرفات المدين", "status": "مستحدثة", "old_text": "لا يوجد مقابل مباشر (تطوير لمبدأ عدم نفاذ التصرف في المادة العشرين في النظام القديم ).", "new_text": "١- يجوز لطالب التنفيذ أن يتقدم إلى المحكمة بدعوى إبطال تصرف، المنفذ ضده، إذا ثبت أنه تصرف بأي مالٍ من أمواله من تاريخ إخطاره بطلب أداء الحق وفق ما قضت به المادة (الثانية عشرة) من النظام، أو من تاريخ إبلاغه بأمر التنفيذ أو من تاريخ الإعلان وفق ما قضت به المادة (الرابعة عشرة) من النظام، وذلك قبل صدور الأمر بالحجز على المال، وتحكم المحكمة -في مواجهة من انتقل إليه المال- بإبطال التصرف كله أو بعضه في حدود مقدار السند التنفيذي؛ إذا كان تصرف المنفذ ضده من التصرفات الآتية: أ- الهبات والتبرعات. ب- الوفاء بدين قبل حلوله. ج- العقود والالتزامات المالية غير المعتادة من مثله، وفق ما تقدره المحكمة. ٢- يكون تصرف المنفذ ضده باطلاً إذا تصرف بالأموال محل التنفيذ بعد صدور الأمر بالحجز عليها.", "change_type": "تقنين دعوى عدم نفاذ التصرفات", "effect": "تعزيز حماية الدائنين من التصرفات التدليسية أو الضارة التي تُفرغ ذمة المدين.", "linkage": "", "old_number": null, "new_number": "الرابعة والعشرون", "sort_id": 24}, {"id": 62, "header": "المادة الخامسة والعشرون (جديد)", "title": "(نص المادة لم يُستخرج بعد من ملف المقارنة المصدر)", "status": "معدلة", "old_text": "النص غير متوفر في هذه النسخة — يحتاج إضافة يدوية من ملف المقارنة الأصلي.", "new_text": "النص غير متوفر في هذه النسخة — يحتاج إضافة يدوية من ملف المقارنة الأصلي.", "change_type": "", "effect": "", "linkage": "", "old_number": null, "new_number": "الخامسة والعشرون", "sort_id": 25}, {"id": 22, "header": "المادة الحادية والعشرون (قديم) / المادة السادسة والعشرون (جديد) – الأموال المُعفاة من الحجز", "title": "الأموال المُعفاة من الحجز", "status": "معدلة", "old_text": "لا يجوز الحجز والتنفيذ على ما يأتي : 1-الأموال المملوكة للدولة . 2- الدار التي يسكنها المدين ومن يعولهم شرعًا، ويقدر قاضي التنفيذ مقدار كفايته، ما لم يكن السكن مرهونًا للدائن . 3- وسيلة نقل المدين ومن يعولهم شرعًا، ويقدر قاضي التنفيذ مقدار كفايته، ما لم تكن الوسيلة مرهونة للدائن . 4- الأجور والرواتب إلا فيما يأتي : أ - مقدار النصف من إجمالي الأجر، أو الراتب لدين النفقة . ‌ب - مقدار الثلث من إجمالي الأجر، أو الراتب للديون الأخرى . وعند التزاحم، يخصص نصف إجمالي الأجر، أو الراتب لدين النفقة، وثلث النصف الآخر للديون الأخرى، وفي حال تعدد هذه الديون يوزع ثلث النصف بين الدائنين بحسب الوجه الشرعي والنظامي . 5- ما يلزم المدين لمزاولة مهنته، أو حرفته بنفسه . 6- مستلزمات المدين الشخصية، ويقدر قاضي التنفيذ كفايته .", "new_text": "لا يجوز الحجز والتنفيذ على ما يأتي: ١- الأموال العامة. 2- الدار التي يسكنها المنفذ ضده أو من يعولهم أو وسيلة نقل المنفذ ضده أو من يعولهم، إذا لم تتجاوز مقدار كفايتهم، وكذلك ما يلزم المنفذ ضده لمزاولة مهنته أو حرفته بنفسه، ومستلزماته الشخصيّة. ويجوز الحجز والتنفيذ على أي من الأموال المذكورة في هذه الفقرة إذا كان مرهونا للدائن أو إذا كان هو عين مال طالب التنفيذ. ٣- الأجور والرواتب إلا فيما يأتي:أ- مقدار النصف من إجمالي الأجر أو النصف من إجمالي الراتب؛ لدين النفقة. ب- مقدار الثلث من إجمالي الأجر أو الثلث من إجمالي الراتب؛ للديون الأخرى. وعند التزاحم، يخصص نصف إجمالي الأجر أو الراتب لدين النفقة، وثلث النصف الآخر للديون الأخرى، وفي حال تعدد هذه الديون يوزع ثلث النصف بين الدائنين. ٤- معاش التقاعد المدني والعسكري إلا فيما يأتي: أ- مقدار النصف من إحمالي المعاش لدين النفقة. ب- مقدار الربع من إجمالي المعاش للديون الأخرى. وعند التزاحم، يخصص نصف إجمالي المعاش لدين النفقة، وربع النصف الآخر للديون الأخرى، وفي حال تعدد هذه الديون يوزع ربع النصف بين الدائنين. ٥- الإعانات الحكومية المقدمة للمنفذ ضده. ٦- ما يصدر به قرار من مجلس الوزراء. وتحدد اللائحة الأحكام والإجراءات اللازمة لإنفاذ ما ورد في الفقرات (١) و(٢) و(٣)(٤) و(٥) من هذه المادة.", "change_type": "توسيع نطاق الأموال المحمية وتقييدها بضابط الكفاية", "effect": "تحقيق توازن أفضل بين حق الدائن وحاجة المدين الأساسية.", "linkage": "يتوافق مع نظام التقاعد المدني والعسكري ونظام الضمان الاجتماعي.", "old_number": "الحادية والعشرون", "new_number": "السادسة والعشرون", "sort_id": 26}, {"id": 63, "header": "المادة السابعة والعشرون (جديد)", "title": "(نص المادة لم يُستخرج بعد من ملف المقارنة المصدر)", "status": "معدلة", "old_text": "النص غير متوفر في هذه النسخة — يحتاج إضافة يدوية من ملف المقارنة الأصلي.", "new_text": "النص غير متوفر في هذه النسخة — يحتاج إضافة يدوية من ملف المقارنة الأصلي.", "change_type": "", "effect": "", "linkage": "", "old_number": null, "new_number": "السابعة والعشرون", "sort_id": 27}, {"id": 23, "header": "المادة الثامنة والعشرون (جديد) – الإحالة الجنائية عند إخفاء الأموال", "title": "الإحالة الجنائية عند إخفاء الأموال", "status": "مستحدثة", "old_text": "لا يوجد مقابل في النظام القديم.", "new_text": "إذا توافر لدى المحكمة أدلة أو قرائن تدل على ارتكاب المنفذ ضده أو غيره سلوكًا جرميًّا بإخفاء أموال المنفذ ضده أو تهريبها أو تبديدها أو تقديم بيانات أو معلومات مضللة أو غير صحيحة أمام المحكمة؛ فتحيل الواقعة إلى الجهة المختصة بالتحقيق لاتخاذ المقتضى النظامي وفقًّا للنصوص النظامية ذات العلاقة، ولا يحول ذلك دون الاستمرار في إجراءات التنفيذ.", "change_type": "فصل مسار التنفيذ المدني عن المسار الجنائي", "effect": "تسريع التنفيذ ومنع المدينين من استخدام الإحالة الجنائية ذريعةً لتعليق الإجراءات.", "linkage": "", "old_number": null, "new_number": "الثامنة والعشرون", "sort_id": 28}, {"id": 24, "header": "المادة التاسعة والعشرون (جديد) – البيع الطوعي للأصول", "title": "البيع الطوعي للأصول", "status": "مستحدثة", "old_text": "لا يوجد مقابل في النظام القديم.", "new_text": "للمحكمة تمكين المنفذ ضده من بيع أمواله طوعاً بما يحقق مصلحة التنفيذ وتحدد اللائحة الأحكام المتعلقة بذلك.", "change_type": "استحداث آلية البيع الطوعي بديلاً عن المزاد الجبري", "effect": "تعظيم قيمة الأصول المحجوزة وحماية حقوق الدائنين من خفض الثمن في المزادات.", "linkage": "", "old_number": null, "new_number": "التاسعة والعشرون", "sort_id": 29}, {"id": 25, "header": "المادة الثانية والعشرون (قديم) / المادة الثلاثون (جديد)", "title": "أحكام تتعلق بالبيع", "status": "معدلة", "old_text": "يجوز للمحجوز على أمواله - في أي حال كانت عليها إجراءات الحجز - إيداع مبلغ من النقود يفي بالدين في حساب المحكمة يخصص للوفاء بالدين، ويترتب على هذا الإيداع زوال الحجز عن الأموال المحجوزة، وانتقاله إلى المبلغ المودع . ١- لا يجوز الحجز على أموال المدين إلا بمقدار قيمة الدين المطالب به، ما لم يكن المال المحجوز غير قابل للتجزئة . ٢- يخصص قاضي التنفيذ الأموال المنفذ عليها بما يحقق سرعة الوفاء .", "new_text": "١- لا يجوز حجز أموال المنفذ ضده إلا بمقدار الدبن المطالب به، ما لم يكن المال المحجوز عليه غير قابل للتجزئة. ٢- تحدد المحكمة أموال المنفذ ضده محمل التنفيذ بما يحقق سرعة الوفاء، سواء أكان ذلك قبل صدور الأمر بالحجز عليها أم بعده. وتبين اللائحة الضوابط المتعلقة بما ورد في هذه الفقرة. ٣- يجوز للمنفذ ضده إذا أثبت أن لديه أموالاً أكثر من مقدار الحق محل السند التنفيذي المراد استيفاؤه؛ أن يحدد مالاً تكون له الأولوية في التنفيذ عليه، وعلى المحكمة أن تأخذ بذلك مالم يخل بمصلحة التنفيذ.", "change_type": "منح المدين حق اختيار الأموال محل التنفيذ .", "effect": "تعزيز طوعية التنفيذ وتجنب التأثيرات غير المقصودة على المشاريع والأصول الإنتاجية .", "linkage": "", "old_number": "الثانية والعشرون", "new_number": "الثلاثون", "sort_id": 30}, {"id": 26, "header": "المادة الحادية والثلاثون (جديد) – -تسليم ثمن المبيع", "title": "تسليم ثمن المبيع", "status": "مستحدثة", "old_text": "لا يوجد مقابل في النظام القديم.", "new_text": "١- لا يسلم ثمن المبيع لطالب التنفيذ -ومن يقوم مقامه- إلا بعد إكمال إجراءات نقل الملكية من الجهة المختصة. ٢- إذا طلب من انتقل إليه عقار -وفق أحكام هذا الفصل- من شاغل العقار إخلاءه، فيجب على شاغل العقار إخلاؤه ما لم يكن شاغلاً للعقار بسند تنفيذي يتضمن حقًّا في استغلال العقار. فإن امتنع شاغل العقار عن إخلائه، فتتخذ المحكمة في شأن الممتنع الإجراءات المنصوص عليها في المادة (السادسة والثلاثين) من النظام، وذلك بناءً على طلب يقدمه من انتقل إليه العقار.", "change_type": "تمكين المشتري من \"الاستلام الفوري\" للعقار وتجميد صرف الثمن حتى نقل الملكية .", "effect": "ت القضاء على \"المماطلة الكيدية\" من الملاك السابقين، وضمان سيولة الأصول العقارية المباعة قضائياً بأسعار عادلة نتيجة انخفاض المخاطر الإجرائية .", "linkage": "", "old_number": null, "new_number": "الحادية والثلاثون", "sort_id": 31}, {"id": 27, "header": "المادة الثانية والثلاثون (جديد) – مصروفات التنفيذ", "title": "مصروفات التنفيذ", "status": "مستحدثة", "old_text": "لا يوجد مقابل في النظام القديم.", "new_text": "١ - دون إخلال بما ورد في الفقرة (٢) من هذه المادة، تحمّل المنفذ ضده مصروفات التنفيذ، ما لم يكن سبب مصروفات التنفيذ عائدًا لغيره فيتحملها المتسبب بقرار تصدره المحكمة، ويكون قابلاً للاعتراض عليه وفقًا للإجراءات المنظمة لذلك. ٢ - يتحمل طالب التنفيذ مصروفات التنفيذ إذا أنهى طلب التنفيذ وفقًا للفقرتين الفرعيتين (هـ) و(و) من الفقرة (١) من المادة (الثالثة والأربعين) من النظام، ما لم يتفق طالب التنفيذ مع المنفذ ضده على خلاف ذلك. ٣- دون إخلال بما ورد في الفقرة (١) من هذه المادة، إذا اقتضى الحال تسليم مصروفات التنفيذ؛ فيسلمها المنفذ ضده، فإن امتنع سلّبها طالب التنفيذ أو من له مصلحة في طلب التنفيذ من أطراف التنفيذ، فإن لم تُسلم مصروفات التنفيذ فتوقف إجراءات التنفيذالمنصوص عليها في النظام.", "change_type": "حوكمة الأعباء المالية للعملية التنفيذية وإقرار مبدأ \"التنفيذ المنتج مقابل التكلفة \".", "effect": "منع إشغال الدائرة القضائية بطلبات غير مكتملة التمويل، وحماية أموال الأطراف عبر تحميل \"المتسبب بالنفقة\" تكاليفها، مما يرفع من كفاءة الإنفاق القضائي", "linkage": "", "old_number": null, "new_number": "الثانية والثلاثون", "sort_id": 32}, {"id": 28, "header": "(قديم)المادة السادسة والخمسون /الثالثة والثلاثون (جديد)حصيلة التنفيذ", "title": "حصيلة التنفيذ", "status": "معدلة", "old_text": "1 - تفتح حسابات مصرفية باسم المحكمة تودع فيها وتصرف منها أموال التنفيذ. وتحدد اللائحة أحكام الإيداع، والصرف، وإدارة هذه الحسابات. 2 - تودع المعادن الثمينة والمجوهرات - وما في حكمها - في خزانة البنك الذي لديه حسابات محكمة التنفيذ. وتنظم اللائحة أحكام، وإجراءات تسهيل مشاركة البنوك في أعمال التنفيذ بعد الاتفاق بين الوزير ومحافظ مؤسسة النقد العربي السعودي على ذلك.", "new_text": "١- تفتح الوزارة حسابات مصرفية وصناديق للأمانات لغرض التنفيذ، ويكون إيداع حصيلة التنفيذ وصرفها وإدارة الحسابات المصرفية وصناديق الأمانات وفق الضوابط والإجراءات التي تحددها اللائحة. ٢ - تيين اللائحة -بالتنسيق مع البنك المركزي السعودي- الأحكام والإجراءات المتعلقة بمشاركة البنوك وما في حكمها في إجراءات (التنفیذ).", "change_type": "حوكمة مركزية لإدارة الأموال والأصول المنقولة تحت مظلة الوزارة .", "effect": "رفع مستوى الموثوقية في إدارة \"الأمانات\" وتسريع عمليات التسوية المالية للمستفيدين عبر الربط التقني المباشر مع المنظومة البنكية", "linkage": "", "old_number": "السادسة والخمسون", "new_number": "الثالثة والثلاثون", "sort_id": 33}, {"id": 29, "header": "(قديم)المادة السابعة والخمسون /الرابعة والثلاثون (جديد)حصيلة التنفيذ", "title": "حصيلة التنفيذ", "status": "معدلة", "old_text": "توزع حصيلة التنفيذ - بأمر من قاضي التنفيذ - على الدائنين الحاجزين، ومن يعد طرفًا في الإجراءات .", "new_text": "إذا كانت حصيلة التنفيذ كافية للوفاء بحقوق طالبي التنفيذ الحاجزين ومن يُعَدُّ طرفًا في إجراءات التنفيذ وفقًا لأحكام النظام، فتأمر المحكمة بتوزيع حصيلة التنفيذ بينهم وفق ما تحدده اللائحة.", "change_type": "إخضاع عملية توزيع الأموال لقواعد تنظيمية موحدة (اللائحة) بدلاً من الاجتهاد القضائي الفردي في كل معاملة .", "effect": "ضمان العدالة والسرعة في صرف المستحقات، وتقليص الأخطاء البشرية في تحديد أنصبة الدائنين عند توفر المبالغ الكافية", "linkage": "", "old_number": "السابعة والخمسون", "new_number": "الرابعة والثلاثون", "sort_id": 34}, {"id": 30, "header": "(قديم)المادة الثامنة والخمسون /الخامسة والثلاثون (جديد)عدم كفاية حصيلة التنفيذ", "title": "عدم كفاية حصيلة التنفيذ", "status": "معدلة", "old_text": "إذا كانت حصيلة التنفيذ لا تكفي للوفاء بجميع حقوق ذوي الشأن (الدائنين الحاجزين ومن يعد طرفًا في الإجراءات)، واتفق هؤلاء على تسوية ودية فيما بينهم لتوزيعها ؛ يثبت قاضي التنفيذ اتفاقهم في محضر ويوقعه مأمور التنفيذ، والمنفذ لهم، والقاضي، وتكون لهذا المحضر قوة السند التنفيذي في مواجهتهم .", "new_text": "إذا كانت حصيلة التنفيذ لا تكفي للوفاء بحقوق طالبي التنفيذ الحاجزين ومن يُعدَّ طرفًا في إجراءات التنفيذ وفقًا لأحكام النظام، فتتخذ المحكمة الآتي: ١ - إذا انفق طالبو التنفيذ الحاجزون ومن يُعدَّ طرفًا في الإجراءات على تسوية ودية فيما بينهم لتوزيع الحصيلة؛ ثبت المحكمة اتفاقهم فيمحضر وتأمر بالتوزيع وفق مقتضى الانفاق الوارد فيه. ٢ - إذا لم يتفق طالبو التنفيذ الحاجزون ومن يُعَدُّ طرفًا في الإجراءات على تسوية ودية فيما بينهم لتوزيع الحصيلة؛ تأمر المحكمة بتوزيع الحصيلة بينهم مع مراعاة تقديم الديون الممتازة المتعلقة بأي منهم على سائر الديون وفقًا للأحكام النظامية المنظمة لذلك والضوابط التي تحددها اللائحة ويكون الأمر الصادر بتوزيع الحصيلة قابلًا للاعتراض عليه وفقًا للإجراءات المنظمة لذلك.", "change_type": "التحول من التركيز على \"التسوية الودية\" كخيار أساسي، إلى إقرار \" منهجية التوزيع القسري \" عند فشل الاتفاق", "effect": "حماية حقوق الدائنين أصحاب الأولوية (كالعمال أو أصحاب الرهونات) من ضياع حقوقهم في حال تعنت بقية الدائنين، وتسريع إنهاء إجراءات التنفيذ عبر التدخل القضائي الملزم بدلاً من انتظار توافق جميع الأطراف، مما يقلل من تجميد الأموال في حسابات المحكمة لفترات طويلة", "linkage": "", "old_number": "الثامنة والخمسون", "new_number": "الخامسة والثلاثون", "sort_id": 35}, {"id": 31, "header": "(قديم)المادة :68و69و70و72 /السادسة والثلاثون (جديد)التنفيذ المباشر", "title": "التنفيذ المباشر", "status": "معدلة", "old_text": "المادة الثامنة والستون : إذا كان محل التنفيذ فعلاً أو امتناعًا عن فعل ولم يقم المنفذ ضده بتنفيذ التزامه خلال خمسة أيام من تكليفه بذلك وفقًا لأحكام هذا النظام، فعلى قاضي التنفيذ الأمر باستعمال القوة المختصة (الشرطة) للقيام بما يلزم من إجراءات للتنفيذ، وذلك ما لم يتطلب التنفيذ أن يقوم به المدين بنفسه . المادة التاسعة والستون : إذا تعذر التنفيذ باستخدام القوة المختصة، أو اقتضى التنفيذ قيام المدين به بنفسه ولم يقم بذلك، فلقاضي التنفيذ أن يصدر حكمًا بغرامة مالية لا تزيد على عشرة آلاف ريال يوميًا تودع في حساب المحكمة عن كل يوم يتأخر فيه المنفذ ضده عن التنفيذ، ولقاضي التنفيذ الحق في إلغاء الغرامة، أو جزء منها إذا بادر المنفذ ضده بالتنفيذ . المادة السبعون : إذا تعذر استخدام القوة المختصة لإجراء التنفيذ، أو إذا فرضت غرامة مالية على المنفذ ضده ولم ينفذ خلال المدة التي يحددها قاضي التنفيذ، جاز له أن يصدر أمرًا بحبس المنفذ ضده لإجباره على التنفيذ . . المادة الثانية والسبعون : يكون تنفيذ إخلاء العقار بخروج المأمور إلى موقع العقار في اليوم التالي لمضي خمسة أيام من تاريخ الإبلاغ بأمر التنفيذ، ويقـوم المأمور بتسليم العقار للمنفذ له، وله استخدام القوة الجبرية لدخول العقار إذا استدعى الأمر ذلك . وإذا لم يحضر من بيده العقار، أو امتنع عن تسلم المنقولات التابعـة له، فتسلم هذه المنقولات إلى الخازن القضائي، ويأمر قاضي التنفيذ ببيعها في المزاد بعد شهرين ما لم يتسلمها الحائز، وتوضع القيمة في حساب المحكمة . وإذا كان المنفذ له دائنًا للحائز، فتطبق أحكام هذا النظام على منقولات الحائز المدين .", "new_text": "إذا كان محل التنفيذ فعلًا أو امتناعًا عن فعل، ولم يُنفذ المنفذ ضده التزامه خلال (خمسة) أيام عمل من تاريخ إبلاغه بأمر التنفيذ أو من تاريخ الإعلان وفق ما قضت به المادة (الرابعة عشرة) من النظام؛ فتتخذ إجراءات التنفيذ الجبري الآتية: ١ - تأمر المحكمة فورًا باستعمال القوة المختصة للقيام بما يلزم من إجراءات التنفيذ، وذلك ما لم يتطلب التنفيذ أن يقوم به المنفذ ضده بنفسه. ٢ - تخاطب المحكمة فورًا الجهة المختصة -عند الاقتضاء- لتنفيذ الحق محل السند التنفيذي. ٣- إذا تعذر التنفيذ باستعمال القوة المختصة، أو عن طريق الجهة المختصة، أو اقتضى التنفيذ قيام المنفذ ضده به بنفسه ولم يقم بذلك؛ فتتخذ إجراءات التنفيذ الجبري الآتية: أ- تأمر المحكمة بمنع المنفذ ضده من السفر إلى خارج المملكة - بناءً على طلب يقدم من طالب التنفيذ - وفقًا لأحكام المادة التاسعة عشرة) من النظام. ب- تفرض المحكمة غرامة لا تزيد على (عشرة آلاف ريال يوميًّا على المنفذ ضده عن كل يوم يمضي دون إتمام التنفيذ على ألا تتجاوز حدًّا تحدد اللائحة مقداره). وللمحكمة إلغاء الغرامة أو جزء منها إذا نفذ المنفذ ضده ما عليه من التزام. وتؤول حصيلة الغرامة الإجمالية إلى خزينة الدولة، وتحدد اللائحة الضوابط والإجراءات اللازمة لما ورد في هذه المادة، بما في ذلك ضوابط وإجراءات إخلاء العقار والتصرف بالمنقولات الموجودة فيه إذا لم يتسلمها مالكها.", "change_type": "إعادة هيكلة \" سلم التدابير القسرية \" عبر استبدال الحبس التنفيذي (كوسيلة إجبار في النظام القديم) بـ \" منع السفر \" والجزاءات المالية المتصاعدة المرتبطة بخزينة الدولة، مع دمج إجراءات إخلاء العقار والتصرف في المنقولات ضمن مسار تنفيذي موحد يتسم بـ \" الفورية \" الإجرائية", "effect": "تحقيق التوازن بين \" سرعة إنفاذ الحق \" وبين \" حقوق الإنسان \" عبر تقليل الاعتماد على سلب الحرية (الحبس) مقابل تفعيل القيود القانونية والمالية التي تضغط على إرادة المنفذ ضده دون تعطيل حياته، مما يؤدي لرفع كفاءة \"إنفاذ العقود\" غير المالية وتقليل العبء على دور التوقيف", "linkage": "", "old_number": "68، 69، 70، 72", "new_number": "السادسة والثلاثون", "sort_id": 36}, {"id": 32, "header": "المادة83 و84و85 (قديم) / المادة السابعة والثلاثون (جديد) – الحبس التنفيذي", "title": "الحبس التنفيذي", "status": "معدلة", "old_text": "المادة الثالثة والثمانون: يصدر قاضي التنفيذ - بناءً على أحكام هـذا النظام - حكمًا بحبس المدين إذا ثبت له امتناعه عن التنفيذ، ويستمر الحبس حتى يتم التنفيذ. المادة الرابعة والثمانون: لا يجوز الحبس التنفيذي للمدين في الأحوال الآتية: 1 - إذا كانت لديه أموال ظاهرة كافية للوفاء بالحق الذي عليه ويمكن الحجز والتنفيذ عليها. 2 - إذا قدم كفالة مصرفية، أو قدم كفيلاً مليئًا، أو كفالة عينية تعادل الدين. 3- إذا ثبت إعساره، وفقًا لأحكام هذا النظام. 4 - إذا كان من أصول الدائن، ما لم يكن الدين نفقة شرعية مقررة. 5 - إذا ثبت بشهادة الهيئة الطبية المختصة إصابته بمرض لا يتحمل معه الحبس. 6 - إذا كانت امرأة حاملاً، أو كان لها طفل لم يتجاوز الثانية من عمره. المادة الخامسة والثمانون: لا يؤدي تنفيذ الحبس إلى انقضاء الحق، وينفذ الحبس التنفيذي بمعزل عن المسجونين في القضايا الجزائية، وتهيئ إدارة السجن للمحبوس ما يمكنه من الوفاء بديونه، أو تسويتها.", "new_text": "١- إذا مضى (ثلاثون) يوم عمل على اتخاذ أي من إجراءات التنفيذ الجبري الواردة في المادة (السادسة والثلاثين) من النظام ولم يُنفذ المنفذ ضده التزامه، فتأمر المحكمة -بناءً على طلب طالب التنفيذ- بحبس المنفذ ضده لإجباره على التنفيذ بما لا يزيد على (مائة وثمانين) يومًّا، يجوز تمديدها مدةً أخرى بناءً على طلب طالب التنفيذ. ٢- لا يجوز حبس المنفذ ضده وفقًّا للفقرة (١) من هذه المادة إذا لم يتحاوز الثامنة عشرة من عمره، أو ثبت -بموجب تقرير طبي معتمد- إصابته بمرض لا يتحمل معه الحبس، أو إذا كان امرأة حاملاً أو لما طفل لم يتجاوز الثانية من عمره، أو إذا كان المنفذ ضده أحد أصول أو فروع طالب التنفيذ. ٣- ينفذ حبس المنفذ ضده وفقًا للفقرة (١) من هذه المادة بمعزل عن المسجونين في القضايا الجزائية. ٤- لا ينقضي الحق محل السند التنفيذي بانتهاء مدة الحبس وفقًّا للفقرة (١) من هذه المادة. :", "change_type": "تحويل الحبس التنفيذي من \"عقوبة مفتوحة\" حتى التنفيذ، إلى \"وسيلة إكراه مؤقتة\" مقيدة بمدة قصوى (180 يوماً) ومهلة إجرائية سابقة .", "effect": "منع الاحتجاز غير المحدود، مع دفع الدائنين للبحث عن \"الحلول المالية\" والتحري عن الأصول بدلاً من الاكتفاء بحبس المدين", "linkage": "", "old_number": "83، 84، 85", "new_number": "السابعة والثلاثون", "sort_id": 37}, {"id": 33, "header": "المادة73 (قديم) / المادة الثامنة والثلاثون (جديد) – الأحوال الشخصية", "title": "الأحوال الشخصية", "status": "معدلة", "old_text": "المادة الثالثة والسبعون : تنفذ القرارات والأحكام الصادرة في مسائل الأحوال الشخصية بالطرق المقررة في هذا النظام، إذا اقتضى ذلك الحجز على الأموال وبيعها. وإذا تضمن التنفيذ دفع أموال بشكل دوري، فيجري التنفيذ من خلال ترتيبات تحددها اللائحة .", "new_text": "1- ينفذ السند التنفيذي المتعلق بمسائل الأحوال الشخصية بالطرق المقررة في النظام واللائحة. 2- تبين اللائحة إجراءات التنفيذ في مسائل الأحوال الشخصية المتضمنة دفع أموال بشكل دوري.", "change_type": "التحول نحو \" المرونة التنظيمية \" في تنفيذ أحكام الأسرة؛ حيث وسّع النظام الجديد من نطاق الإحالة للائحة لتشمل كافة \"طرق التنفيذ\" (وليس فقط الحجز والبيع) ، مع التركيز الخاص على مأسسة \" الالتزامات الدورية \" (كالنفقة) لضمان تدفقها المالي دون انقطاع.", "effect": "تحقيق \" الأمان المادي المستدام \" للمستفيدين من أحكام النفقة (خاصة النساء والأطفال) ، عبر إيجاد مسارات تنفيذية تتجاوز الإجراءات التقليدية المرهقة، مما يقلل من النزاعات المتكررة حول الدفعات الشهرية، ويسهم في استقرار الأسرة من خلال سرعة استيفاء الحقوق المالية بصفة دورية ومنتظمة", "linkage": "", "old_number": "73", "new_number": "الثامنة والثلاثون", "sort_id": 38}, {"id": 34, "header": "المادة74 (قديم) / المادة التاسعة والثلاثون (جديد) – الأحوال الشخصية", "title": "الأحوال الشخصية", "status": "معدلة", "old_text": "المادة الرابعة والسبعون : تنفذ - جبرًا - الأحكام الصادرة بحضانة الصغير، وحفظه، والزيارة، والتفريق بين الزوجين، حتى ولو أدى ذلك إلى الاستعانة بالقوة المختصة (الشرطة)، وإلى دخول المنازل. ويعاد تنفيذ الحكم كلما اقتضى الأمر ذلك.", "new_text": "١ - ينفذ - جبرًا - السند التنفيذي الصادر بالحضانة والزيارة، حتى لو أدى ذلك إلى الاستعانة بالقوة المختصة وإلى دخول المنازل بحسب ما يقتضيه الحال ويعاد تنفيذ السند التنفيذي كلما اقتضى الأمر ذلك. ٢- تسري أحكام التنفيذ المباشر على الممتنع عن التنفيذ في مسائل الأحوال الشخصية وفق ضوابط تحددها اللائحة يراعى فيها طبيعة مسائل الأحوال الشخصية وظروف التنفيذ.", "change_type": "توسيع نطاق التنفيذ ليشمل كافة \" السندات التنفيذية \" (كعقود الصلح الموثقة) وليس الأحكام فقط، مع إدماج \" وسائل التنفيذ المباشر \" (مثل الغرامات المالية ومنع السفر) كأدوات ضغط نظامية تسبق أو ترافق استخدام القوة الجبرية .", "effect": "تنويع أدوات الضغط النظامي \" ؛ عبر شمول كافة \" السندات التنفيذية \" (كعقود الصلح) في إجراءات التنفيذ الجبري، مع إقرار مسار \" التنفيذ المباشر \" (كالغرامات ومنع السفر) كأدوات إكراه قانونية موجهة للممتنع، تضاف إلى وسيلة القوة الجبرية التقليدية .", "linkage": "", "old_number": "74", "new_number": "التاسعة والثلاثون", "sort_id": 39}, {"id": 35, "header": "المادة76 (قديم) / المادة الأربعون (جديد) – الأحوال الشخصية", "title": "الأحوال الشخصية", "status": "معدلة", "old_text": "المادة السادسة والسبعون : يحدد قاضي التنفيذ طريقة تنفيذ الحكم الصادر بزيارة الصغير ما لم ينص الحكم عليها، ويجري التنفيذ بتسليم الصغير في مكان مهيّأ ومناسب لهذا النوع من التنفيذ، وتحدد وزارة العدل تلك الأماكن في اللائحة، على ألا يكون في مراكز الشرط ونحوها .", "new_text": "تراعي المحكمة في تنفيذ السند التنفيذي الصادر بزيارة المحضون ما يحقق مصلحته، ويتناسب مع ظروف التنفيذ. وتحدد اللائحة الأحكام اللازمة لإنفاذ ما ورد في هذه المادة.", "change_type": "إقرار معيار المصلحة المحضون كمرجع حاكم \" ؛ حيث انتقل النص من التركيز على الجانب اللوجستي المكاني (مكان التسليم) إلى منح المحكمة سلطة تقديرية واسعة لضمان أن تكون عملية التنفيذ بحد ذاتها محققة لمصلحة المحضون النفسية والاجتماعية .", "effect": "مرونة التنفيذ وتخصيص الرعاية؛ عبر تمكين المحكمة من تصميم إجراءات زيارة تتناسب مع حالة كل أسرة على حدة", "linkage": "", "old_number": "76", "new_number": "الأربعون", "sort_id": 40}, {"id": 36, "header": "المادة71 ,86(قديم) / المادة الحادية والأربعون (جديد) – التنفيذ على الشخصية الاعتبارية", "title": "التنفيذ على الشخصية الاعتبارية", "status": "معدلة", "old_text": "المادة الحادية والسبعون : تسري أحكام التنفيذ المباشر على الممثل النظامي للشخص المعنوي الخاص، أو المتسبب في إعاقة التنفيذ من منسوبي الشخص المعنوي الخاص . المادة السادسة والثمانون : تسري أحكام الحبس التنفيذي على الممثل النظامي للشخص المعنوي الخاص، أو المتسبب في إعاقة التنفيذ من منسوبيه .", "new_text": "١- تسري أحكام التنفيذ المباشر - في التنفيذ على الشخصية الاعتبارية الخاصة على المتسبب في إعاقة التنفيذ من منسوبي الشخصية الاعتبارية الخاصة وفق الضوابط والإجراءات التي تحددها اللائحة. ٢- مع مراعاة ما ورد في الفقرة (١) من هذه المادة تبين اللائحة الأحكام والإجراءات المتعلقة بالتنفيذ على الشخصية الاعتبارية الخاصة وفقًا لأحكام النظام والأنظمة ذات الصلة، وبما يتفق مع طبيعة التنفيذ على هذه الشخصية.", "change_type": "التحول من المسؤولية بالصفة إلى المسؤولية بالفعل \" ؛ حيث ركز النظام الجديد على \" المتسبب الحقيقي \" في إعاقة التنفيذ بدلاً من حصرها في \"الممثل النظامي\" (المدير) فقط، مع إحالة الإجراءات للائحة لضمان مرونة التنفيذ بما يتفق مع الهياكل الإدارية المعقدة للشركات الخاصة .", "effect": "تحقيق \" الردع الوظيفي الفعّال \" ؛ عبر منع التحصن خلف الكيان الاعتباري للتهرب من الالتزامات، وضمان نفاذ الأحكام ضد الشركات من خلال استهداف المسؤول المعطل للقرار مباشرة، مما يعزز الموثوقية المالية في التعاملات التجارية ويحمي حقوق الدائنين من المماطلة.", "linkage": "", "old_number": "71، 86", "new_number": "الحادية والأربعون", "sort_id": 41}, {"id": 37, "header": "المادة الثانية والأربعون (جديد) – انتهاء طلب التنفيذ", "title": "انتهاء طلب التنفيذ", "status": "مستحدثة", "old_text": "لا يوجد مقابل في النظام القديم.", "new_text": "على طالب التنفيذ إنهاء طلبه بعد استيفاء الحق محل السند التنفيذي، وذلك خلال المدة التي تحددها اللائحة.", "change_type": "\" مأسسة التزامات الدائن (طالب التنفيذ) \" ؛ حيث انتقل النظام من اعتبار إنهاء الطلب \"حقاً\" للدائن يمارسه متى شاء، إلى \"واجب نظامي\" مقيد بمدة زمنية محددة فور استيفاء الحق، مما ينقل عبء المتابعة الإجرائية من كاهل المحكمة أو المدين إلى الدائن المستوفي لحقه .", "effect": "\" حماية المركز القانوني للمدين ومنع كيد التنفيذ \" ؛ عبر ضمان الرفع الفوري لكافة التدابير الاحترازية (مثل المنع من السفر أو حجز الحسابات) فور سداد الدين، مما يحمي المدين من استمرار القيود \"النظامية\" بعد الوفاء \"الفعلي\"، ويسهم في دقة المؤشرات العدلية عبر إغلاق القضايا المنتهية فوراً", "linkage": "", "old_number": null, "new_number": "الثانية والأربعون", "sort_id": 42}, {"id": 38, "header": "المادة الثالثة والأربعون (جديد) – انتهاء طلب التنفيذ", "title": "انتهاء طلب التنفيذ", "status": "مستحدثة", "old_text": "لا يوجد مقابل في النظام القديم.", "new_text": "١ - ينتهي طلب التنفيذ في الأحوال الآتية: أ- إذا استوفي الحق محل السند التنفيذي. ب- إذا ثبت للمحكمة عدم وجود أموال للمنفذ ضده. وتصدر المحكمة قرارا بإنهاء طلب التنفيذ تبعًا لذلك، ويكون قابلاً للاعتراض عليها وفقًا للإجراءات المنظمة لذلك. ج- إذا اتخذت جميع إجراءات التنفيذ المنصوص عليها في النظام واللائحة، ومضت - بعد آخر إجراء- المدة المحددة لطلب التنفيذ. د- إذا تعذر تنفيذ طلب التنفيذ وتصدر المحكمة قرارًا بإنهاء طلب التنفيذ تبعًا لذلك، ويكون قابلاً للاعتراض عليه وفقًا للإجراءات المنظمة لذلك. هـ - إذا أنهى طالب التنفيذ طلب التنفيذ بناءً على اتفاق بينه وبين المنفذ ضده أو لأي سبب آخر. و - إذا أبرأ طالب التنفيذ ذمة المنفذ ضده من الحق محل السند التنفيذي. ٢- لا يخل ما ورد في الفقرات الفرعية (ب) و(ج) و(د) و(هـ) من الفقرة (١) من هذه المادة، بحق الدائن في استكمال طلب التنفيذ مرة أخرى -وفقًا لأحكام النظام- إذا توافر ما يسوغ ذلك.", "change_type": "\" تقنين حجيّة إنهاء الخصومة التنفيذية \" ؛ حيث انتقل النظام من حالة \"الطلبات المفتوحة \" إلى وضع معايير زمنية وموضوعية محددة لإنهاء الطلب (مثل الفقرة \"ج\" المتعلقة بمضي المدة) ، مع إقرار حق الاعتراض القضائي على قرارات الإنهاء الناتجة عن تعذر التنفيذ أو عدم وجود أموال .", "effect": "\" تصفية القضايا الراكدة وحماية المركز المالي \" ؛ عبر منع تكدس الطلبات غير المنتجَة في النظام العدلي ، مما يسمح للمتعثرين (ثابتي الإعسار) بالعودة للدورة الاقتصادية كعناصر منتجة، مع كفالة حق الدائن في إعادة فتح الملف فور ظهور أي أصول جديدة، وهذا يحقق توازناً بين \"سرعة الإنجاز\" و\"ضمان الحقوق\" على المدى البعيد .", "linkage": "", "old_number": null, "new_number": "الثالثة والأربعون", "sort_id": 43}, {"id": 39, "header": "المادة السادسة (قديم) / المادة الرابعة والأربعون (جديد) – منازعات التنفيذ والاعتراض على إجراءات التنفيذ", "title": "منازعات التنفيذ والاعتراض على إجراءات التنفيذ", "status": "معدلة", "old_text": "تكون جميع قرارات قاضي التنفيذ نهائية وتخضع أحكامه في منازعات التنفيذ ودعوى الإعسار للاستئناف ويكون حكم الاستئناف نهائياً .", "new_text": "فيما عدا ما حدده النظام، تكون جميع أوامر وقرارات المحكمة نهائية.", "change_type": "تكريس مبدأ الأصل في القطعية \" ؛ حيث انتقل المنظم من حصر المسائل القابلة للاستئناف في نص واحد (مثل الإعسار والمنازعات) ، إلى وضع قاعدة كلية تقضي بنهائية كافة الأوامر والقرارات، مع جعل الاستثناء (الحق في الاعتراض) محصوراً فقط فيما يرد ذكره نصاً في مواد النظام الأخرى (مثل قرار إنهاء الطلب في المادة (43) ، وهذا يقلص من دائرة الاجتهاد في قبول الطعون", "effect": "\"غلق منافذ التسويف الإجرائي \" عبر منع المدين من استخدام \"طلب الاستئناف\" كوسيلة لتعطيل التنفيذ لسنوات .", "linkage": "", "old_number": "السادسة", "new_number": "الرابعة والأربعون", "sort_id": 44}, {"id": 40, "header": "المادة السادسة (قديم) / المادة الخامسة والأربعون (جديد) – منازعات التنفيذ والاعتراض على إجراءات التنفيذ", "title": "منازعات التنفيذ والاعتراض على إجراءات التنفيذ", "status": "معدلة", "old_text": "تكون جميع قرارات قاضي التنفيذ نهائية وتخضع أحكامه في منازعات التنفيذ ودعوى الإعسار للاستئناف ويكون حكم الاستئناف نهائياً.", "new_text": "١ - دون إخلال بما نصت عليه الفقرة (٢) من المادة (الرابعة) من النظام لمن له مصلحة من أطراف التنفيذ أو من غيرهم أن يتقدم بمنازعة تنفيذ تعلق بصحة السند التنفيذي أو شروط تنفيذ السند التنفيذي أو اختصاص المحكمة بتنفيذه. ٢- تفصل المحكمة في منازعة التنفيذ وفقًا للأحكام المنظمة للدعاوى المستعجلة والإجراءات التي تحددها اللائحة. ٣- يحدد المجلس منازعات التنفيذ التي لا يجوز استئناف الأحكام الصادرة فيها. ٤ - يكون الحكم الصادر من دوائر الاستئناف في الأحكام الصادرة في منازعات التنفيذ التي يجوز استئنافها؛ غير قابل للاعتراض عليه بطريق النقض. ٥- استثناءً من الحكم الوارد في الفقرة (٤) من هذه المادة للمجلس أن يحدد منازعات التنفيذ التي يجوز الاعتراض على الأحكام الصادرة فيها بطريق النقض.", "change_type": "تفصيل أسباب المنازعة وتقييد مسالك الطعن", "effect": "تسريع الفصل في منازعات التنفيذ مع تحقيق درجة كافية من الرقابة القضائية.", "linkage": "", "old_number": "السادسة", "new_number": "الخامسة والأربعون", "sort_id": 45}, {"id": 41, "header": "المادة السادسة والأربعون (جديد) – منازعات التنفيذ والاعتراض على إجراءات التنفيذ", "title": "منازعات التنفيذ والاعتراض على إجراءات التنفيذ", "status": "مستحدثة", "old_text": "لا يوجد مقابل في النظام القديم.", "new_text": "١- لكل ذي مصلحة أن يتظلم من الأوامر والقرارات المتعلقة بإجراءات التنفيذ -التي تحددها اللائحة- الصادرة من المحكمة أو الإدارة المختصة أو القطاع الخاص. ٢- يكون التظلم والفصل فيه لدى رئيس المحكمة أو من يحدده المجلس خلال (عشرة) أيام عمل من اليوم التالي لتاريخ إتاحة الاطلاع على القرار أو الأمر وفق ما تحدده اللائحة. ويجوز لرئيس المحكمة أو من يحدده المجلس -بحسب الحال- إيقاف تنفيذ الأمر أو القرار المتظلم منه متى تحققت المصلحة في ذلك إلى حين البت في التظلم، ويترتب على إيقاف تنفيذ الأمر أو القرار توقف جميع الإجراءات والمهل المتعلقة به. ٣- في جميع الأحوال، يكون القرار الصادر في شأن التظلم المنصوص عليه في هذه المادة نهائيا.", "change_type": "إنشاء مسار تظلمي متخصص بالأوامر والقرارات المتعلقة بإجراءات التنفيذ.", "effect": "توفير مسار تصحيحي سريع دون اللجوء إلى منازعة تنفيذ رسمية", "linkage": "", "old_number": null, "new_number": "السادسة والأربعون", "sort_id": 46}, {"id": 64, "header": "المادة السابعة والأربعون (جديد)", "title": "(نص المادة لم يُستخرج بعد من ملف المقارنة المصدر)", "status": "مستحدثة", "old_text": "النص غير متوفر في هذه النسخة — يحتاج إضافة يدوية من ملف المقارنة الأصلي.", "new_text": "النص غير متوفر في هذه النسخة — يحتاج إضافة يدوية من ملف المقارنة الأصلي.", "change_type": "", "effect": "", "linkage": "", "old_number": null, "new_number": "السابعة والأربعون", "sort_id": 47}, {"id": 42, "header": "المادة 87 (قديم) / المادة الثامنة والأربعون (جديد) – العقوبات", "title": "العقوبات", "status": "معدلة", "old_text": "المادة السابعة والثمانون : تختص المحاكم الجزائية بالنظر في إيقاع العقوبات الواردة في هذا النظام، وترفع هيئة التحقيق والادعاء العام الدعوى بناءً على إحالة يصدرها قاضي التنفيذ أو بلاغ من المتضرر .", "new_text": "١ - فيما عدا ما ورد في الفقرة (١) من المادة (السابعة والخمسين) من النظام، نتولى المحكمة المختصة النظر في الدعاوى الناشئة من تطبيق الأحكام الواردة في هذا الباب وإيقاع العقوبات المقررة فيها. ٢- نتولى الجهة المختصة بالتحقيق والادعاء مهمة التحقيق والادعاء أمام المحكمة المختصة عن الجرائم المنصوص عليها في هذا الباب.", "change_type": "\"مرونة الاختصاص وتعديل الهيكل العقابي\"؛ عبر نقل الاختصاص من \"المحاكم الجزائية\" حصراً إلى \"المحكمة المختصة\" (لضمان سرعة الربط مع دوائر التنفيذ)", "effect": "", "linkage": "", "old_number": "87", "new_number": "الثامنة والأربعون", "sort_id": 48}, {"id": 43, "header": "المادة 87قديم) / المادة التاسعة والأربعون (جديد) – العقوبات", "title": "العقوبات", "status": "معدلة", "old_text": "المادة السابعة والثمانون : تختص المحاكم الجزائية بالنظر في إيقاع العقوبات الواردة في هذا النظام، وترفع هيئة التحقيق والادعاء العام الدعوى بناءً على إحالة يصدرها قاضي التنفيذ أو بلاغ من المتضرر .", "new_text": "١- دون إخلال بالأحكام النظامية ذات العلاقة، يتولى ضبط الجرائم -المنصوص عليها في هذا الباب- موظفون أو عاملون من الوزارة، أو من أي من الجهات العامة الأخرى، الذين يصدر بتسميتهم قرار من الوزير وتكون لهم صفة الضبط الجنائي. وتين اللائحة صلاحياتهم وكذلك الإجراءات والضوابط التي يتعين عليهم التقيد بها في أداء مهماتهم وممارسة صلاحياتهم. ٢- لا يخل ما ورد في الفقرة (١) من هذه المادة بصلاحية المحكمة في إحالة الأفعال التي تشكل جرائم المنصوص عليها في هذا الباب بشكل مباشر إلى الجهة المختصة بالتحقيق والادعاء لاستكمال ما يلزم وفقًا للنصوص النظامية ذات الصلة.", "change_type": "\"مأسسة الضبط الجنائي التخصصي\"؛ حيث انتقل النظام من نموذج \"الانتظار\" (بلاغ المتضرر أو إحالة القاضي) إلى نموذج \"المبادرة بالتحري والضبط\"، عبر منح موظفي الوزارة صفة (الضبط الجنائي) لجرائم التنفيذ. هذا يحول دور الوزارة من جهة إشرافية إدارية إلى جهة تنفيذية تمتلك صلاحية كشف التلاعب وإثبات الجرائم ميدانياً وتقنياً قبل إحالتها إلى الجهة المختصة .", "effect": "\"تعزيز الرقابة الاستباقية وتقليل فرص التهرب\"؛ فبدلاً من إلقاء كامل عبء إثبات \"إخفاء الأموال\" على الدائن وحده، ليصبح لدى الوزارة فرق متخصصة تملك الصلاحيات النظامية لضبط المخالفات فور وقوعها.", "linkage": "ينسجم مع رؤية تحديث المنظومة العدلية في تفعيل الجانب الرقابي لوزارة العدل، وتخفيف الضغط عن مراكز الشرطة التقليدية عبر إيجاد \"ضبط جنائي تخصصي\" يفهم تعقيدات القضايا المالية والتجارية، مما يسرع من وتيرة العدالة الجنائية في ملفات التنفيذ .", "old_number": "87", "new_number": "التاسعة والأربعون", "sort_id": 49}, {"id": 44, "header": "المادة 88 (قديم) / المادة الخمسون (جديد) – العقوبات", "title": "العقوبات", "status": "معدلة", "old_text": "المادة الثامنة والثمانون : 1 - يعاقب بالسجن مدة لا تزيد على سبع سنـوات كل مـدين ارتكب أيًّا من الجرائم الآتية : أ - الامتناع عن تنفيذ الحكم النهائي الصادر في حقه، أو ثبت قيامه بإخفاء أمواله، أو تهريبها، أو امتنع عن الإفصاح عما لديه من أموال . ب - تعمد تعطيل التنفيذ بأن أقام دعوى قصد منها تعطيل التنفيذ . ج - مقاومة التنفيذ، بأن هدد، أو تعدى هو بنفسه - أو بوساطة غيره - على موظف، أو مرخص له يقوم بالتنفيذ، أو قام بأي من ذلك ضـد المنفذ له، وأي فعل آخر غير مشروع قام به بقصد مقاومة التنفيذ . د - الكذب في إقراراته أمام المحكمة، أو الكذب في الإجراءات، أو تقديم بيانات غير صحيحة . 2 - يعاقب بالعقوبة المنصوص عليها في الفقرة (1) من هذه المادة، كل من أعان المدين، أو ساعده في أي من الجرائم المنصوص عليها في الفقرات (1/ أ) و(1/ ب) و(1/ ج) و(1/ د) من هذه المادة .", "new_text": "١ - يعاقب بالسجن مدة لا تزيد على (ثلاث سنوات وبغرامة لا تزيد على (مليون) ريال، أو بإحدى هاتين العقوبتين؛ كل من ارتكب أيا من الجرائم الآتية: أ- إخفاء الأموال أو تهريبها؛ وذلك بقصد الحيلولة دون استيفاء الحق محل السند التنفيذي وفقًا لأحكام النظام. ب- تعمد تعطيل التنفيذ، وذلك بالامتناع عن تنفيذ أمر التنفيذ الصادر في حقه، أو بالامتناع عن الإفصاح عما لديه من أموال أو بإقامة دعوى بقصد تعطيل التنفيذ، أو بالتصرف بالأموال محل التنفيذ بعد صدور الأمر بالمجز عليها، أو بعدم الاستجابة للاستجواب؛ وذلك وفقًا لأحكام النظام. ج- مقاومة التنفيذ بأن هدد أو تعدى -بنفسه أو بوساطة غيره- على موظف أو مرخص له أثناء تأديته لأعمال التنفيذ أو بسببها، أو هدد أو تعدى على طالب التنفيذ بسبب التنفيذ، أو قام بأي فعل آخر غير مشروع بقصد مقاومة التنفيذ. د تقديم بيانات أو معلومات مضللة أو غير صحيحة، بشكل متعمد، أمام المحكمة أو أثناء إجراءات التنفيذ. ٢- يعاقب بالعقوبة المقررة في الفقرة (١) من هذه المادة كل من شارك في ارتكاب جريمة من الجرائم المنصوص عليها في هذه المادة. ويُعد شريكا في الجريمة كل من اتفق أو حرض أو ساعد في ارتكابها مع علمه بذلك إذا ارتكبت الجريمة بناءً على هذا الاتفاق أو التحريض أو المساعدة.", "change_type": "تقليص عقوبة السجن (من 7 إلى 3 سنوات) مع إضافة غرامة مالية (حتى مليون ريال ) ، توسيع نطاق الحماية الجنائية لتشمل \" طالب التنفيذ \" ضد أي تعدٍ أو تهديد، مع اشتراط وقوع التضليل \" بشكل متعمد \" لتقييد الجريمة بالقصد الجنائي .", "effect": "تخفيف التجريم الصارم مع تعزيز الردع المالي الذي ليكون أكثر فاعلية في بيئة الأعمال ,", "linkage": "", "old_number": "88", "new_number": "الخمسون", "sort_id": 50}, {"id": 45, "header": "المادة 89 (قديم) / المادة الحادية والخمسون (جديد) – العقوبات", "title": "العقوبات", "status": "معدلة", "old_text": "المادة التاسعة والثمانون : يعاقب الموظف العام ومن في حكمه بالسجن مدة لا تزيد على سبع سنوات إذا منع التنفيذ أو أعاقه. ويعد ذلك جريمة من الجرائم المخلة بالأمانة .", "new_text": "يعاقب بالسجن مدة لا تزيد على (خمس سنوات) الموظف العام ومن في حكمه إذا منع التنفيذ أو أعاقه، ويُعد ذلك جريمة من الجرائم المخلة بالأمانة.", "change_type": "تقليص عقوبة السجن (من 7 إلى 5 سنوات) ) بحق الموظف العام", "effect": "تخفيف التجريم الصارم مع تعزيز الردع المالي الذي ليكون أكثر فاعلية في بيئة الأعمال ,", "linkage": "", "old_number": "89", "new_number": "الحادية والخمسون", "sort_id": 51}, {"id": 46, "header": "المادة 90 (قديم) / المادة الثانية والخمسون (جديد) – العقوبات", "title": "العقوبات", "status": "معدلة", "old_text": "يعاقب بالسجن مدة لا تزيد على خمس عشرة سنة كل مدين ثبت قيامه بتبديد أمواله إذا كانت الأموال كثيرة ولو ثبت إعساره. ويعد ذلك من الجرائم الكبيرة الموجبة للتوقيف. .", "new_text": "١- يعاقب بالسجن مدة لا تزيد على خمس عشرة سنة كل مدين ثبت قيامه بتبديد أمواله إذا كانت الأموال كثيرة ولو ثبت، إعساره، ويعد ذلك من الجرائم الكبيرة الموجبة للتوقيف. ٢ - يضع النائب العام - بعد التنسيق مع وزارة العدل ووزارة المالية - ضوابط ومعايير لتحديد الأموال الكثيرة المنصوص عليها في الفقرة (١) من هذه المادة بحسب أنواع الديون وأموال المدينين", "change_type": "\"حوكمة معيار ضخامة الأموال \" ؛ فبينما بقيت العقوبة كما هي (15 سنة) ، استحدث النظام فقرة تُلزم النائب العام بوضع ضوابط ومعايير محددة (بالتنسيق مع وزارتي العدل والمالية) لتعريف \"الأموال الكثيرة\".", "effect": "\"تحقيق اليقين القانوني وتوحيد العقوبة \" ؛ عبر منع تباين الأحكام في تقدير حجم الجرم، مما يضمن أن يُعامل \"تبديد الأموال\" بمعيار مالي ومنطقي موحد على مستوى المملكة، وهذا يرفع من كفاءة الردع في الجرائم الاقتصادية الكبرى التي تمس الملاءة المالية للمنشآت", "linkage": "يخضع للتنسيق وزارة العدل ووزارة المالية هذا الارتباط يهدف لتوحيد الضوابط المالية والنظامية.", "old_number": "90", "new_number": "الثانية والخمسون", "sort_id": 52}, {"id": 47, "header": "المادة 91 (قديم) / المادة الثالثة والخمسون (جديد) – العقوبات", "title": "العقوبات", "status": "معدلة", "old_text": "المادة الحادية والتسعون : يعاقب بالسجن مدة لا تزيد على ثلاث سنوات كل من : 1 - الشخص المطلع على بيانات أصول المدين، إذا سرب تلك البيانات، ويعاقب بالعقوبة نفسها كل شخص اطلع على تلك البيانات دون أمر قضائي . 2 - الحارس أو الخازن القضائي وتابعيهما، إذا أخل أي منهم بواجباته؛ بإهماله أو تعديه أو تهربه من تسليم الأموال، أو تسلمها . 3 - المقوم أو وكيل البيع وتابعيهما، أو المشارك في المزاد؛ إذا تعمد أي منهم التأثير على السعر، أو التضليل في عدالة الأسعار .", "new_text": "يعاقب بالسجن مدة لا تزيد على (ثلاث سنوات وبغرامة لا تزيد على (مائة ألف) ريال، أو بإحدى هاتين العقوبتين؛ كل من: ١ - طالب التنفيذ إذا تقدم بطلب إجراء من إجراءات التنفيذ بقصد الإضرار بالمنفذ ضده، أو إذا ماطل في إنهاء الطلب بعد استيفاء الحق محل السند التنفيذي بقصد الإضرار بالمنفذ ضده. ٢- المخول - وفقًا لأحكام -النظام - بالاطلاع على البيانات أو المعلومات المتعلقة بأموال المنفذ ضده، إذا أفشاها دون سبب نظامي، ويعاقب بالعقوبة نفسها كل شخص اطلع على تلك البيانات أو المعلومات دون أمر قضائي. ٣- مقدم خدمات التنفيذ المرخص له أو تابعيه إذا أخل أي منهم بواجباته؛ بتعديه أو تهربه من تسليم الأموال أو تَسَلُّها. ٤ - المقوم أو وكيل البيع أو تابعيهما، أو المشارك في بيوع المزادات؛ إذا تعمد أي منهم التأثير في السعر، أو التضليل في عدالة الأسعار.", "change_type": "استحداث غرامة (١٠٠ ألف ريال) وتجريم \"طالب التنفيذ\" عند تعمد الإضرار. كما شمل العقاب \"مقدم الخدمة\" في حالتين: التعدي (تجاوز الصلاحيات) أو التهرب (إخفاء الأموال وعدم تسليمها)، مع تجريم الاطلاع غير القانوني على البيانات أو المعلومات المتعلقة بأموال المنفذ ضده.", "effect": "تشديد الرقابة على \"القطاع الخاص\" المرخص له لضمان عدم استغلال نفوذهم في التعدي على حقوق الآخرين .", "linkage": "", "old_number": "91", "new_number": "الثالثة والخمسون", "sort_id": 53}, {"id": 48, "header": "المادة 92قديم) / المادة ألرابعة والخمسون (جديد) – العقوبات", "title": "العقوبات", "status": "معدلة", "old_text": "المادة الثانية والتسعون : يعاقب بالسجن مدة لا تزيد على ثلاثة أشهر كل من امتنع من الوالدين - أو غيرهما - عن تنفيذ حكم صادر بالحضانة، أو الولاية، أو الزيارة ، أو قام بمقاومة التنفيذ، أو تعطيله .", "new_text": "يعاقب بالسجن مدة لا تزيد على (تسعين) يوما، وبغرامة لا تزيد على (ثلاثين ألف) ريال، أو بإحدى هاتين العقوبتين؛ كل من امتنع من الوالدين – أوغيرهما- عن تنفيذ أمر تنفيذ صادر بالحضانة أو الولاية ، أو الزيارة ، أو قاوم التنفيذ ، أو عطله.", "change_type": "استحداث غرامة (30) ألف ريال كخيار بديل أو إضافي للسجن (٩٠ يوماً)، مع توحيد صياغة المدة الزمنية لتصبح بالأيام بدلاً من الأشهر لزيادة الدقة القانونية .", "effect": "توفير مرونة للقاضي في معالجة القضايا الأسرية؛ بحيث يتم ردع الطرف المماطل مالياً دون الحاجة دائماً للسجن الذي قد يؤثر سلباً على نفسية الأطفال واستقرار الأسرة، مما يسرع من تنفيذ أحكام الحضانة والزيارة .", "linkage": "", "old_number": "92", "new_number": "الرابعة والخمسون", "sort_id": 54}, {"id": 49, "header": "المادة الخامسة والخمسون(جديد) – العقوبات", "title": "العقوبات", "status": "مستحدثة", "old_text": "لا يوجد مقابل في النظام القديم.", "new_text": "إذا شكل أي فعل من ألافعال التي تشكل جرائم-المنصوص عليها في هذا الباب- جريمة منصوصًا عليها في نظام آخر؛ فتطبق العقوبة الأشد.", "change_type": "منع المماطلين من استغلال تعدد الأنظمة للهروب من الجزاءات الأشد.", "effect": "", "linkage": "", "old_number": null, "new_number": "الخامسة والخمسون", "sort_id": 55}, {"id": 50, "header": "المادة السادسة والخمسون(جديد) – العقوبات", "title": "العقوبات", "status": "مستحدثة", "old_text": "لا يوجد مقابل في النظام القديم.", "new_text": "يجوز في حالة العود الحكم بمضاعفة العقوبة المحكوم بها للجرائم المنصوص عليها في هذا الباب؛ حتى لو ترتب عليها تجاوز الحد الأقصى لها على ألا تتجاوز ضعف هذا الحد، ويعد عائداً كل من ارتكب أيا من الجرائم المحكوم عليه فيها بحكم نهائي؛ خلال ثلاث سنوات من تاريخ اكتساب الحكم الصفة القطعية.", "change_type": "", "effect": "", "linkage": "", "old_number": null, "new_number": "السادسة والخمسون", "sort_id": 56}, {"id": 51, "header": "المادة السابعة والخمسون (جديد) – العقوبات", "title": "العقوبات", "status": "مستحدثة", "old_text": "لا يوجد مقابل في النظام القديم.", "new_text": "١ - دون إخلال بأي عقوبة أشد منصوص عليها في أي نظام آخر، وفيما لم يرد في شأنه نص خاص في النظام؛ يعاقب مقدم خدمات التنفيذ في حال مخالفته لأي من أحكام النظام أو اللائحة أو لائحة أعمال مقدمي خدمات التنفيذ، بعقوبة (أو أكثر) من العقوبات الآتية: أ- الإنذار. ب- فرض غرامة لا تزيد على ثلاثمائة ألف ريال. ج- إيقاف الترخيص مدة لا تزيد على (سنة). د- إلغاء الترخيص. ٢ - تكوّن بقرار من الوزير لجنة (أو أكثر) لا يقل عدد أعضائها عن (ثلاثة)، ويسمى أحدهم رئيسًا، ويكون من بينهم مختص نظامي؛نتولى النظر في المخالفات وإيقاع العقوبات المنصوص عليها في الفقرة (١) من هذه المادة، وذلك بحسب نوع المخالفة المرتكبة وجسامتها ومدى تأثيرها، ويعتمد قرار اللجنة الوزير أو من يفوضه بذلك. ويصدر الوزير بقرار منه قواعد عمل اللجنة، وتحدد فيها مكافآت أعضائها. ٣- يحق لمن صدر ضده قرار من اللجنة المنصوص عليها في الفقرة (٢) من هذه المادة التظلم منه أمام المحكمة الإدارية وفقًا لأحكام نظام المرافعات أمام ديوان المظالم.", "change_type": "\" إيجاد نظام تأديبي لمقدمي خدمات التنفيذ \" ؛ عبر استحداث لجنة وزارية مختصة للنظر في مخالفاتهم وإيقاع عقوبات متدرجة تبدأ من الإنذار وتصل لغرامة ٣٠٠ ألف ريال أو إلغاء الترخيص نهائياً", "effect": "\"حوكمة عمل القطاع الخاص في التنفيذ \" ؛ بضمان نزاهة وكفاءة مقدمي الخدمات وحماية أطراف التنفيذ من التجاوزات، مع كفالة حق التظلم أمام القضاء الإداري لضمان العدالة والشفافية", "linkage": "بنظام المرافعات أمام ديوان المظالم.", "old_number": null, "new_number": "السابعة والخمسون", "sort_id": 57}, {"id": 52, "header": "المادة الثامنة والخمسون (جديد) – العقوبات", "title": "العقوبات", "status": "مستحدثة", "old_text": "لا يوجد مقابل في النظام القديم.", "new_text": "١ - للمحكمة المختصة أو اللجنة المنصوص عليها في الفقرة (٢) من المادة (السابعة والخمسين) من النظام -بحسب الأحوال - تضمين الحكم أو القرار الصادر منها بتحديد العقوبة النص على نشر ملخصه على نفقة المحكوم عليه أو المخالف في صحيفة محلية (أو أكثر) تصدر في مكان إقامته، فإن لم تكن في مكان إقامته صحيفة ففي أقرب منطقة له، أو نشره في أي وسيلة أخرى مناسبة، وذلك بحسب نوع الجريمة أو المخالفة المرتكبة وجسامتها ومدى تأثيرها، ويكون النشر بعد اكتساب الحكم الصفة القطعية، أو تحصن القرار بفوات ميعاد التظلم منه،أو صدور حكم نهائي برفض التظلم منه. ٢ - للمحكمة المختصة أو الجنة المنصوص عليها في الفقرة (٢) من المادة (السابعة والخمسين) من النظام -بحسب الأحوال - تضمين الحكم أو القرار الصادر منها بتحديد العقوبة إلزام المخالف بحضور برامج تأهيلية معينة على نفقته.", "change_type": "استحداث عقوبات تكميلية تشمل التشهير والتأهيل \" ؛ بإتاحة نشر ملخص الحكم على نفقة المخالف وإلزامه بحضور برامج تأهيلية.", "effect": "توسيع نطاق الردع وتقويم السلوك.", "linkage": "", "old_number": null, "new_number": "الثامنة والخمسون", "sort_id": 58}, {"id": 53, "header": "المادة التاسعة والخمسون (جديد) – العقوبات", "title": "العقوبات", "status": "مستحدثة", "old_text": "لا يوجد مقابل في النظام القديم. .", "new_text": "فيما لم يرد به نص خاص في النظام تطبق على الإجراءات والمنازعات الواردة في النظام-بما لا يتعارض مع طبيعتها- أحكام نظام المرافعات الشرعية.", "change_type": "عبر النص صراحة على تطبيق أحكام نظام المرافعات الشرعية في كل ما لم يرد فيه نص خاص بنظام التنفيذ، لضمان تغطية كافة الجوانب الإجرائية والموضوعية للمنازعات", "effect": "", "linkage": "نظام المرافعات الشرعية.", "old_number": null, "new_number": "التاسعة والخمسون", "sort_id": 59}, {"id": 54, "header": "المادة 93 (قديم) / المادتان 60 و61 (جديد) – أحكام عامة", "title": "أحكام عامة", "status": "معدلة", "old_text": "المادة الثالثة والتسعون : تنشأ في وزارة العدل وكالة مختصة للتنفيذ تعنى بالشؤون الإدارية، والمالية، تتولى ما يأتي : 1- الترخيص لمقدمي خدمات التنفيذ، وهم : أ - مبلغ الأوراق القضائي . ب- وكيل البيع القضائي . ج - الحارس القضائي . د - الخازن القضائي . هـ - شركات متخصصة تتولى الإشراف على عملية تسلُّم المؤجر الأصول المنقولة وفقاً لضوابط تضعها وزارة العدل بالتنسيق مع وزارة الداخلية . و - مقدم خدمة تنفيذ من القطاع الخاص بعد موافقة مجلس الوزراء على إسناد الخدمة إلى هذا القطاع . وتحدد اللائحة أحكام الترخيص لهم، وقواعد تأهيلهم بما في ذلك الضمان المالي المطلوب، وقواعد إجراءات عملهم، والإشراف عليهم، وسياسات تحديد الأجور التي يتقاضونها، والجزاءات التي توقع عليهم . 2 - الاستعانة بشركة (أو أكثر) للقيام بأعمال التنفيذ أو بعضها تحت إشراف قضاء التنفيذ . 3 - إعداد لائحة لتدريب العاملين في التنفيذ . 4 - نشر بيانات التنفيذ . 5 - تبادل الإفصاح عن الأصول مع الدول الأخرى . .", "new_text": "١- فيما عدا إصدار أوامر حبس المنفذ ضدهم لإجبارهم على التنفيذ المباشر، وأوامر المنع من السفر إلى خارج المملكة والفصل في المنازعات والتظلمات وإصدار الأحكام؛ يجوز - بقرار من الوزير - أن تسند إجراءات التنفيذ المنصوص عليها في النظام واللائحة إلى الإدارة المختصة، أو الجهة المختصة بعد الاتفاق معها، أو القطاع الخاص. ٢- يشترط فيما يسند من إجراءات التنفيذ إلى القطاع الخاص -وفقًا لما ورد في الفقرة (١) من هذه المادة- أن تستوفي الجهة المسند إليها ما يأتي: أ- أن تكون الجهة مرخصا لها في المملكة بمزاولة النشاط محل الإسناد. ب- أن تتوافر لدى الجهة الخبرات الفنية والقدرات المالية اللازمة للقيام بالأعمال المسندة بحسب ما تقرره الوزارة. ج- ألا يكون هناك تعارض مصالح لدى الجهة وإن كان هذا التعارض محتملاً. د- أن تلتزم الجهة بالمحافظة على سرية أي بيانات أو معلومات اطّلع عليها بسبب قيامها بتقديم الأعمال المسندة إليها، وأن يمتد هذا الالتزام حتى بعد انتهاء الإسناد. ١ - نتولى الوزارة الترخيص لمقدمي خدمات التنفيذ والإشراف عليهم ويعد من مقدمي خدمات التنفيذ: وكيل البيع القضائي، والحارس القضائي، ومقدم خدمة استرداد الأصول، ومقدم خدمة تتبع الأموال، ومقدم خدمات تنفيذ أحكام الزيارة في مسائل الأحوال الشخصية، وغيرهم ممن تبينهم اللائحة. ٢- يصدر الوزير لائحة تنظم أعمال مقدمي خدمات التنفيذ، بما في ذلك تحديد اختصاصاتهم، وأحكام الترخيص لهم، والضمان المالي المطلوب لذلك، وقواعد تأهيلهم، وواجباتهم، والقواعد والإجراءات المتعلقة بضبط مخالفاتهم، وسياسات تحديد الأجور التي يتقاضونها.", "change_type": "توسيع وتخصص مقدمي خدمات التنفيذ ، مع تحديد دقيق للأعمال التي لا يجوز إسنادها للقطاع الخاص.", "effect": "فتح سوق خدمات التنفيذ للقطاع الخاص مع رقابة قضائية، مما يُعزز الكفاءة والتخصص. .", "linkage": "يتوافق مع رؤية 2030 في رفع مشاركة القطاع الخاص في تقديم الخدمات الحكومية.", "old_number": "93", "new_number": "الستون والحادية والستون", "sort_id": 60}, {"id": 55, "header": "المادة الثانية والستون (جديد) أحكام عامة -الرقمنة الإلزامية لإجراءات التنفيذ", "title": "الرقمنة الإلزامية لإجراءات التنفيذ", "status": "مستحدثة", "old_text": "لا يوجد مقابل في النظام القديم.", "new_text": "يكون اتخاذ أي قرار أو إجراء من إجراءات التنفيذ الواردة في النظام واللائحة عبر استعمال الوسائل الإلكترونية المعتمدة، ويستغنى عن أي منهما متى تحققت الغاية باستعمال أساليب التقنيات الحديثة المعتمدة، وإذا تعذر تنفيذ أي منهما بالوسائل الإلكترونية المعتمدة أو أساليب التقنيات الحديثة المعتمدة، يكون تنفيذه عبر الطرق العادية.", "change_type": "أتمتة كاملة وإلزامية لإجراءات التنفيذ (مبدأ 'رقمية أولاً')", "effect": "تقليص الورق والاتصالات المادية بشكل جذري مما سيُسرّع دورة التنفيذ بصورة ملموسة.", "linkage": "يُمثل الركيزة التقنية لكافة أحكام النظام الجديد ويرتبط بمبادرات منصة ناجز وبرنامج التحول الرقمي في وزارة العدل.", "old_number": null, "new_number": "الثانية والستون", "sort_id": 61}, {"id": 56, "header": "المادة الثالثة(والستون (جديدأحكام عامة -الرقمنة الإلزامية لإجراءات التنفيذ", "title": "الرقمنة الإلزامية لإجراءات التنفيذ", "status": "مستحدثة", "old_text": "لا يوجد مقابل في النظام القديم.", "new_text": "تصدر الوزارة ما يلزم للعمل بأحكام النظام واللائحة من أدلة إجرائية وقرارات ونماذج.", "change_type": "\"منح الوزارة صلاحية إصدار الأدلة الإجرائية والنماذج الموحدة\"؛ لضمان تأصيل وتوحيد كافة خطوات العمل التنفيذي في قالب نظامي ملزم", "effect": "", "linkage": "", "old_number": null, "new_number": "الثالثة والستون", "sort_id": 62}, {"id": 57, "header": "المادة الرابعة والستون والخامسة والستون(جديد) أحكام عامة", "title": "إصدار اللائحة التنفيذية", "status": "منقولة", "old_text": "يصدر الوزير اللائحة خلال مائة وثمانين يومًا من تاريخ صدور النظام، ويعمل بها بعد نفاذه.", "new_text": "يصدر الوزير اللائحة خلال (مائة وثمانين) يومًا من تاريخ صدور النظام، ويعمل بها من تاريخ العمل بالنظام.", "change_type": "تعديل لفظي طفيف يربط بدء العمل باللائحة بتاريخ العمل بالنظام صراحةً بدل الاكتفاء بعبارة \"بعد نفاذه\".", "effect": "", "linkage": "", "old_number": "الرابعة والستون", "new_number": "الرابعة والستون", "sort_id": 63}, {"id": 59, "header": "المادة السادسة والتسعون / الثامنة والتسعون (قديم) – المادة الخامسة والستون (جديد) – إلغاء الأنظمة السابقة وسريان النظام", "title": "إلغاء الأنظمة السابقة وسريان النظام", "status": "منقولة", "old_text": "المادة السادسة والتسعون: يلغي هذا النظام المواد من (السادسة والتسعين بعد المائة إلى الثانية والثلاثين بعد المائتين) من نظام المرافعات الشرعية، الصادر بالمرسوم الملكي رقم (م/21) وتاريخ 20/5/1421هـ، والفقرة (ز) من المادة (الثالثة عشرة) من نظام ديوان المظالم، الصادر بالمرسوم الملكي رقم (م/78) وتاريخ 19/9/1428هـ، وكل ما يتعارض معه من أحكام.\nالمادة الثامنة والتسعون: يعمل بهذا النظام بعد مضي مائة وثمانين يومًا من تاريخ نشره في الجريدة الرسمية.", "new_text": "١- يحل النظام محل نظام التنفيذ الصادر بالمرسوم الملكي رقم (م/53) وتاريخ 1433/8/13هـ، وتعديلاته، ويلغي كل ما يتعارض معه من أحكام.\n٢- يعمل بالنظام بعد مضي (مائة وثمانين) يومًا من تاريخ نشره في الجريدة الرسمية.", "change_type": "دمج حكمي الإلغاء وبدء النفاذ في مادة واحدة، وقصر الإلغاء على نظام التنفيذ السابق نفسه بدل تعداد مواد متفرقة من أنظمة أخرى.", "effect": "", "linkage": "", "old_number": "السادسة والتسعون / الثامنة والتسعون", "new_number": "الخامسة والستون", "sort_id": 64}];
+</script>
+<script>
+// ============ Helpers ============
+const $ = (sel, el=document) => el.querySelector(sel);
+const $$ = (sel, el=document) => Array.from(el.querySelectorAll(sel));
+const esc = (s) => (s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+const STATUS_ICON = {
+  'مستحدثة': '＋', 'معدلة': '≈', 'منقولة': '\u2194\uFE0E', 'ملغاة': '−'
+};
+const STATUS_COLOR_VAR = {
+  'مستحدثة': 'green', 'معدلة': 'amber', 'منقولة': 'slate', 'ملغاة': 'red'
+};
+
+let THEME = 'light';
+try { THEME = localStorage.getItem('muqaran-theme') || 'light'; } catch(e){}
+try { document.documentElement.setAttribute('data-theme', THEME); } catch(e){}
+
+let NOTES = {}; // in-memory researcher notes, keyed by article id
+
+function counts(){
+  const c = {'مستحدثة':0,'معدلة':0,'منقولة':0,'ملغاة':0};
+  ARTICLES.forEach(a => c[a.status] = (c[a.status]||0) + 1);
+  return c;
+}
+
+// ============ Icons (inline SVG, lucide-style minimal) ============
+const ICO = {
+  search: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>`,
+  sun: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>`,
+  moon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1111.2 3 7 7 0 0021 12.8z"/></svg>`,
+  home: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>`,
+  book: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h11a3 3 0 013 3v13H7a3 3 0 01-3-3V4z"/><path d="M4 4v13a3 3 0 003 3"/></svg>`,
+  plus: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>`,
+  edit: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>`,
+  move: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 9l-3 3 3 3M9 5l3-3 3 3M15 19l3 3 3-3M19 9l3 3-3 3M2 12h20M12 2v20"/></svg>`,
+  x: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>`,
+  chart: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg>`,
+  link: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 17H7a5 5 0 010-10h2M15 7h2a5 5 0 010 10h-2M8 12h8"/></svg>`,
+  scale: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18M5 7l-3 6a4 4 0 008 0l-3-6M19 7l-3 6a4 4 0 008 0l-3-6M5 7h14M3 21h18"/></svg>`,
+  impact: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r=".6" fill="currentColor"/></svg>`,
+  note: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v12H8l-4 4z"/></svg>`,
+  arrLeft: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>`,
+};
+
+// ============ Routing ============
+function parseHash(){
+  const h = location.hash.replace(/^#\/?/, '');
+  const parts = h.split('/').filter(Boolean);
+  return parts;
+}
+
+window.addEventListener('hashchange', render);
+window.addEventListener('DOMContentLoaded', render);
+
+function nav(path){ location.hash = path; }
+
+// ============ Shell (topbar) ============
+function renderShell(activePane){
+  const app = $('#app');
+  app.innerHTML = `
+    <div class="company-banner">منصة مُقارن مقدَّمة من <b>${COMPANY.name}</b></div>
+    <div class="topbar">
+      <div class="topbar-inner">
+        <div class="brand" onclick="nav('')">
+          <span class="brand-mark">${logoSVG()}</span>
+          مُقارن <small>Muqaran</small>
+        </div>
+        <div class="search-box">
+          ${ICO.search}
+          <input id="global-search" placeholder="ابحث برقم المادة، العنوان، النص، الكلمات المفتاحية…" autocomplete="off"/>
+          <div class="search-results" id="search-results"></div>
+        </div>
+        <a class="icon-btn" title="من نحن" onclick="nav('about')" style="width:auto; padding:0 14px; font-size:13px; font-weight:600;">من نحن</a>
+        <button class="icon-btn" id="theme-toggle" title="تبديل المظهر">${THEME==='light'?ICO.moon:ICO.sun}</button>
+      </div>
+    </div>
+    <main id="main-pane"></main>
+    <footer>مُقارن — منصة رقمية لمقارنة الأنظمة السعودية · الحقوق محفوظة لشركة جاسر بن ناصر الجاسر للمحاماة</footer>
+  `;
+  $('#theme-toggle').onclick = () => {
+    THEME = THEME === 'light' ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', THEME);
+    try{ localStorage.setItem('muqaran-theme', THEME); }catch(e){}
+    $('#theme-toggle').innerHTML = THEME==='light'?ICO.moon:ICO.sun;
+  };
+  setupSearch();
+}
+
+function logoSVG(){
+  // Placeholder mark — replace with the firm's actual logo file once supplied.
+  return `<svg viewBox="0 0 100 100"><rect x="10" y="10" width="80" height="80" rx="18" fill="none" stroke="var(--ink-2)" stroke-width="6"/><rect x="43" y="43" width="14" height="14" transform="rotate(45 50 50)" fill="var(--teal)"/></svg>`;
+}
+
+function setupSearch(){
+  const input = $('#global-search');
+  const box = $('#search-results');
+  input.addEventListener('input', () => {
+    const q = input.value.trim();
+    if(!q){ box.classList.remove('open'); box.innerHTML=''; return; }
+    const results = searchArticles(q).slice(0, 8);
+    if(!results.length){
+      box.innerHTML = `<div class="search-result-item"><div class="sr-snip">لا توجد نتائج مطابقة لـ «${esc(q)}»</div></div>`;
+    } else {
+      box.innerHTML = results.map(a => `
+        <div class="search-result-item" data-id="${a.id}">
+          <div class="sr-title">${esc(a.header)}</div>
+          <div class="sr-snip">${esc((a.new_text||a.old_text).slice(0,90))}</div>
+        </div>`).join('');
+      $$('.search-result-item', box).forEach(el => {
+        el.onclick = () => { nav(`system/${SYSTEM.key}/article/${el.dataset.id}`); box.classList.remove('open'); input.value=''; };
+      });
+    }
+    box.classList.add('open');
+  });
+  document.addEventListener('click', (e) => {
+    if(!box.contains(e.target) && e.target !== input) box.classList.remove('open');
+  });
+}
+
+function searchArticles(q){
+  const nq = q.toLowerCase();
+  return ARTICLES.filter(a => {
+    return [a.header, a.title, a.old_text, a.new_text, a.change_type, a.effect, a.linkage, a.status]
+      .join(' ').toLowerCase().includes(nq);
+  });
+}
+
+// ============ Router / Main render ============
+function render(){
+  const parts = parseHash();
+  renderShell();
+  const pane = $('#main-pane');
+  if(parts.length === 0){
+    pane.innerHTML = homeView();
+    bindHomeEvents();
+  } else if(parts[0] === 'about'){
+    pane.innerHTML = aboutView();
+  } else if(parts[0] === 'system' && parts[1]){
+    const sub = parts[2] || 'overview';
+    const artId = parts[3];
+    pane.innerHTML = systemWorkspaceView(sub, artId);
+    bindWorkspaceEvents(sub, artId);
+  } else {
+    pane.innerHTML = homeView();
+    bindHomeEvents();
+  }
+  window.scrollTo(0,0);
+}
+
+function aboutView(){
+  return `
+  <section style="padding:56px 0 20px; text-align:center;">
+    <div class="hero-eyebrow"><span class="diamond"></span> من نحن</div>
+    <h1 style="font-size:32px; font-weight:700; margin:0 0 14px;">${COMPANY.name}</h1>
+    <p style="font-size:15px; color:var(--ink-2); max-width:560px; margin:0 auto;">
+      تفاصيل الشركة وبياناتها الكاملة ستُضاف هنا قريبًا. في هذه الأثناء، إليكم فريق عمل منصة مُقارن.
+    </p>
+  </section>
+  <div class="team-grid">
+    ${TEAM.map(t => `
+      <div class="team-card">
+        <div class="team-avatar">${esc(t.name.replace(/[^\u0621-\u064A]/g,'').slice(0,1) || '؟')}</div>
+        <h4>${esc(t.name)}</h4>
+        <p>${esc(t.role)}</p>
+      </div>`).join('')}
+  </div>
+  `;
+}
+
+// ============ Home view ============
+function homeView(){
+  const c = counts();
+  return `
+  <section class="hero">
+    <div class="hero-eyebrow"><span class="diamond"></span> مرجع تشريعي ذكي — نسخة تجريبية</div>
+    <h1>افهم كل تعديل نظامي <span>في دقائق</span>، لا في أيام</h1>
+    <p>مُقارن يقارن نصوص الأنظمة السعودية القديمة والجديدة مادة بمادة، ويوضح نوع التعديل وأثره النظامي وعلاقته بالأنظمة الأخرى — لمساعدة القضاة والمحامين والباحثين على تتبّع التطور التشريعي بثقة.</p>
+    <button class="btn btn-primary" onclick="nav('system/${SYSTEM.key}')">${ICO.book} ابدأ المقارنة</button>
+  </section>
+
+  <div class="stats-grid">
+    <div class="stat-card"><div class="num">1</div><div class="lbl">عدد الأنظمة</div></div>
+    <div class="stat-card"><div class="num">${SYSTEM.newCount}</div><div class="lbl">عدد المواد (الجديد)</div></div>
+    <div class="stat-card"><div class="num">${c['مستحدثة']}</div><div class="lbl">مواد مستحدثة</div></div>
+    <div class="stat-card"><div class="num">${c['معدلة']}</div><div class="lbl">مواد معدّلة</div></div>
+    <div class="stat-card"><div class="num">${c['ملغاة']}</div><div class="lbl">مواد ملغاة</div></div>
+    <div class="stat-card"><div class="num">${SYSTEM.updated}</div><div class="lbl">آخر تحديث</div></div>
+  </div>
+
+  <div class="section-head">
+    <h2><span class="diamond"></span> الأنظمة المتاحة للمقارنة</h2>
+    <p>${ARTICLES.length} مادة مفصّلة ضمن نظام واحد حتى الآن</p>
+  </div>
+  <div class="systems-grid">
+    <div class="system-card" onclick="nav('system/${SYSTEM.key}')">
+      <div class="system-card-top">
+        <h3><span class="diamond"></span> ${SYSTEM.name}</h3>
+        <span class="system-badge">${SYSTEM.oldYear} ← ${SYSTEM.newYear}</span>
+      </div>
+      <p class="system-card-desc">صادر بقرار مجلس الوزراء رقم (746)، ومصادق عليه بالمرسوم الملكي رقم (م/237)، ليعيد رسم الإجراءات التنفيذية نحو الكفاءة الرقمية والتخصص القضائي.</p>
+      <div class="system-meta">
+        <div><b>${SYSTEM.newCount}</b>مادة (جديد)</div>
+        <div><b>${c['مستحدثة']}</b>مستحدثة</div>
+        <div><b>${c['معدلة']}</b>معدّلة</div>
+        <div><b>${c['منقولة']}</b>منقولة</div>
+      </div>
+      <button class="btn btn-primary">استعراض النظام ${ICO.arrLeft}</button>
+    </div>
+  </div>
+  <p class="update-note">${ICO.plus} المنصة مبنية بحيث تقبل التحديث لاحقًا واستحداث مقارنات لأنظمة سعودية أخرى دون تغيير جذري في البنية.</p>
+  `;
+}
+
+function bindHomeEvents(){}
+
+// ============ System workspace ============
+const NAV_ITEMS = [
+  {key:'overview', label:'نظرة عامة', icon:'home'},
+  {key:'all', label:'جميع المواد', icon:'book'},
+  {key:'new', label:'المواد المستحدثة', icon:'plus', status:'مستحدثة'},
+  {key:'modified', label:'المواد المعدلة', icon:'edit', status:'معدلة'},
+  {key:'repealed', label:'المواد الملغاة', icon:'x', status:'ملغاة'},
+  {key:'transferred', label:'المواد المنقولة دون تعديل', icon:'move', status:'منقولة'},
+  {key:'retained', label:'المستبقاة مؤقتًا', icon:'note'},
+  {key:'stats', label:'الإحصائيات', icon:'chart'},
+];
+
+function sidebarHTML(active){
+  const c = counts();
+  function countFor(it){
+    if(it.key === 'transferred') return SYSTEM.transferred;
+    if(it.key === 'retained') return SYSTEM.retainedTemp;
+    if(it.key === 'all') return ARTICLES.length;
+    if(it.status) return c[it.status];
+    return '';
+  }
+  return `
+  <div class="sidebar">
+    <div class="sidebar-title">${SYSTEM.name}</div>
+    ${NAV_ITEMS.map(it => `
+      <div class="nav-item ${active===it.key?'active':''}" data-nav="${it.key}">
+        <span style="display:flex;align-items:center;gap:9px;">${it.status?`<span class="nav-dot" style="background:var(--${STATUS_COLOR_VAR[it.status]})"></span>`:`<span style="width:16px;height:16px;color:var(--ink-muted)">${ICO[it.icon]}</span>`} ${it.label}</span>
+        <span class="count">${countFor(it)}</span>
+      </div>`).join('')}
+    <div class="sidebar-title mt">النظام</div>
+    <div class="nav-item" data-nav="_home" style="color:var(--ink-muted)">${ICO.arrLeft} <span style="margin-right:auto"></span> الرئيسية</div>
+  </div>`;
+}
+
+function systemWorkspaceView(sub, artId){
+  return `<div class="workspace">
+    ${sidebarHTML(artId ? 'all' : sub)}
+    <div class="content-pane" id="content-pane">${renderPane(sub, artId)}</div>
+  </div>`;
+}
+
+function bindWorkspaceEvents(sub, artId){
+  $$('.nav-item[data-nav]').forEach(el => {
+    el.onclick = () => {
+      const k = el.dataset.nav;
+      if(k === '_home') nav('');
+      else nav(`system/${SYSTEM.key}/${k}`);
+    };
+  });
+  bindPaneEvents(sub, artId);
+}
+
+function renderPane(sub, artId){
+  if(artId) return articleDetailView(artId);
+  switch(sub){
+    case 'overview': return overviewView();
+    case 'all': return articleListView(null);
+    case 'new': return articleListView('مستحدثة');
+    case 'modified': return articleListView('معدلة');
+    case 'repealed': return articleListView('ملغاة');
+    case 'transferred': return articleListView('منقولة');
+    case 'retained': return retainedView();
+    case 'stats': return statsView();
+    default: return overviewView();
+  }
+}
+
+function bindPaneEvents(sub, artId){
+  if(artId){ bindArticleDetailEvents(artId); return; }
+  if(['all','new','modified','repealed','transferred'].includes(sub)){
+    bindArticleListEvents();
+  }
+}
+
+// ---------- Overview ----------
+function overviewView(){
+  const c = counts();
+  return `
+  <h1 class="page-title"><span class="diamond"></span> نظرة عامة</h1>
+  <p class="page-sub">${SYSTEM.decree}</p>
+  <div class="overview-grid">
+    <div class="mini-stat"><div class="n">${SYSTEM.oldCount}</div><div class="l">مواد النظام القديم (${SYSTEM.oldYear})</div></div>
+    <div class="mini-stat"><div class="n">${SYSTEM.newCount}</div><div class="l">مواد النظام الجديد (${SYSTEM.newYear})</div></div>
+    <div class="mini-stat"><div class="n">${ARTICLES.length}</div><div class="l">مواد مفصّلة في هذه المقارنة</div></div>
+    <div class="mini-stat"><div class="n">${c['مستحدثة']}</div><div class="l">نسبة الاستحداث ${Math.round(c['مستحدثة']/ARTICLES.length*100)}٪</div></div>
+  </div>
+  <div class="legend-box">
+    <div class="legend-row"><span class="status-badge مستحدثة">${STATUS_ICON['مستحدثة']} مستحدثة</span><span class="l-txt">مواد جديدة كليًا لا يوجد لها مقابل في النظام القديم. (${c['مستحدثة']} مادة)</span></div>
+    <div class="legend-row"><span class="status-badge معدلة">${STATUS_ICON['معدلة']} معدّلة</span><span class="l-txt">مواد مُعدَّلة عن النظام القديم مع الإشارة إلى طبيعة التعديل. (${c['معدلة']} مادة)</span></div>
+    <div class="legend-row"><span class="status-badge منقولة">${STATUS_ICON['منقولة']} منقولة دون تعديل</span><span class="l-txt">مواد منقولة كما هي أو بتعديلات غير مؤثرة. (${SYSTEM.transferred} مادة إجمالًا)</span></div>
+    <div class="legend-row"><span class="status-badge ملغاة">${STATUS_ICON['ملغاة']} ملغاة</span><span class="l-txt">مواد محذوفة من النظام الجديد. لم يتضمّن ملف المقارنة المصدر حالات إلغاء صريحة لهذا النظام.</span></div>
+    <div class="legend-row"><span class="status-badge" style="background:var(--surface-2); color:var(--ink-2)">${ICO.note}</span><span class="l-txt">مستبقاة مؤقتًا: ${SYSTEM.retainedTemp} مادة من النظام القديم يستمر العمل بها لحين صدور تنظيم مستقل (كأحكام الحجز التحفظي والإعسار).</span></div>
+  </div>
+  <div class="section-head"><h2>أحدث المواد المضافة للمقارنة</h2></div>
+  <div class="article-list">
+    ${ARTICLES.slice(0,5).map(articleRowHTML).join('')}
+  </div>
+  `;
+}
+
+// ---------- Article list ----------
+function articleListView(statusFilter){
+  const titleMap = {
+    'مستحدثة':'المواد المستحدثة', 'معدلة':'المواد المعدّلة', 'ملغاة':'المواد الملغاة',
+    'منقولة':'المواد المنقولة دون تعديل', null:'جميع المواد'
+  };
+  let list = statusFilter ? ARTICLES.filter(a=>a.status===statusFilter) : ARTICLES;
+  if(!list.length){
+    return `
+    <h1 class="page-title">${titleMap[statusFilter]}</h1>
+    <div class="empty-state">
+      <span class="diamond lg" style="margin:0 auto;display:block;width:14px;"></span>
+      <h3>لا توجد مواد بهذا التصنيف</h3>
+      <p style="font-size:13px">لم يتضمّن ملف المقارنة المصدر مواد مصنّفة كـ «${titleMap[statusFilter]}» لنظام التنفيذ.</p>
+    </div>`;
+  }
+  const partialNote = statusFilter === 'منقولة' && list.length < SYSTEM.transferred
+    ? `<p class="page-sub" style="color:var(--amber)">إجمالي المواد المنقولة دون تعديل هو ${SYSTEM.transferred} مادة؛ ${list.length} منها موثّقة تفصيليًا في هذه النسخة حتى الآن.</p>` : '';
+  return `
+  <h1 class="page-title">${titleMap[statusFilter]}</h1>
+  <p class="page-sub">${list.length} من ${ARTICLES.length} مادة موثّقة تفصيليًا</p>
+  ${partialNote}
+  <div class="filters-row" id="status-filters">
+    ${['الكل','مستحدثة','معدلة','منقولة','ملغاة'].map(s=>`<button class="chip ${((!statusFilter&&s==='الكل')||statusFilter===s)?'active':''}" data-status="${s==='الكل'?'':s}">${s}</button>`).join('')}
+  </div>
+  <div class="article-list" id="article-list">
+    ${list.map(articleRowHTML).join('')}
+  </div>`;
+}
+
+function articleRowHTML(a){
+  const numLabel = a.old_number ? `${a.old_number} ← ${a.new_number||'—'}` : `${a.new_number||'—'}`;
+  return `
+  <div class="article-row" data-id="${a.id}">
+    <span class="art-numbers">${esc(numLabel)}</span>
+    <span class="art-title">${esc(a.title||a.header)}</span>
+    <span class="art-preview">${esc(a.new_text.slice(0,110))}</span>
+    <span class="status-badge ${a.status}">${STATUS_ICON[a.status]||''} ${a.status}</span>
+  </div>`;
+}
+
+function bindArticleListEvents(){
+  $$('.article-row').forEach(el => {
+    el.onclick = () => nav(`system/${SYSTEM.key}/all/${el.dataset.id}`);
+  });
+  const chips = $('#status-filters');
+  if(chips){
+    $$('.chip', chips).forEach(ch => {
+      ch.onclick = () => {
+        const st = ch.dataset.status;
+        const route = st ? {'مستحدثة':'new','معدلة':'modified','منقولة':'transferred','ملغاة':'repealed'}[st] : 'all';
+        nav(`system/${SYSTEM.key}/${route}`);
+      };
+    });
+  }
+}
+
+// ---------- Article detail ----------
+function articleDetailView(artId){
+  const a = ARTICLES.find(x => String(x.id) === String(artId));
+  if(!a) return `<div class="empty-state"><h3>لم يتم العثور على المادة</h3></div>`;
+  const keywords = extractKeywords(a);
+  return `
+  <div class="article-header">
+    <div class="breadcrumb">
+      <span data-back="all">جميع المواد</span> / <span>${esc(a.title||a.header)}</span>
+    </div>
+    <h1>${esc(a.title || a.header)}</h1>
+    <div class="article-num-tags">
+      ${a.old_number ? `<span class="num-tag old">النظام القديم: مادة ${esc(a.old_number)}</span>` : `<span class="num-tag old">لا مقابل في النظام القديم</span>`}
+      <span class="num-tag new">النظام الجديد: مادة ${esc(a.new_number||'—')}</span>
+    </div>
+    <div class="badges">
+      <span class="status-badge ${a.status}">${STATUS_ICON[a.status]||''} ${a.status}</span>
+      <span style="font-size:12.5px;color:var(--ink-muted)">${SYSTEM.name} · ${SYSTEM.oldYear} → ${SYSTEM.newYear}</span>
+    </div>
+  </div>
+
+  <div class="diff-wrap">
+    <div class="diff-head"><div class="old-h">النظام القديم (${SYSTEM.oldYear})</div><div class="new-h">النظام الجديد (${SYSTEM.newYear})</div></div>
+    <div class="diff-body">
+      <div class="diff-col old">${esc(a.old_text)}</div>
+      <div class="diff-col new">${esc(a.new_text)}</div>
+    </div>
+  </div>
+
+  <div class="cards-grid">
+    <div class="info-card"><h4>${ICO.edit} نوع التعديل</h4><p>${esc(a.change_type)||'—'}</p></div>
+    <div class="info-card"><h4>${ICO.impact} الأثر النظامي</h4><p>${esc(a.effect)||'—'}</p></div>
+    <div class="info-card"><h4>${ICO.link} وجه الارتباط</h4><p>${esc(a.linkage)||'—'}</p></div>
+    <div class="info-card">
+      <h4>${ICO.scale} الكلمات المفتاحية</h4>
+      <p>${keywords.map(k=>`<span style="display:inline-block;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:3px 10px;font-size:12px;margin:2px 4px 2px 0;">${esc(k)}</span>`).join('')}</p>
+    </div>
+    <div class="info-card full">
+      <h4>${ICO.note} ملاحظات الباحث</h4>
+      <textarea class="notes-area" id="notes-${a.id}" placeholder="اكتب ملاحظاتك أو تحليلك الخاص حول هذه المادة…">${esc(NOTES[a.id]||'')}</textarea>
+      <div class="note-hint">تُحفظ الملاحظات مؤقتًا لهذه الجلسة فقط.</div>
+    </div>
+  </div>
+  `;
+}
+
+function extractKeywords(a){
+  const stop = new Set(['التي','الذي','وذلك','هذا','هذه','على','التنفيذ','إلى','من','في','ما','أو','أن','لم','قد','عن','مع','وفق','النظام','المادة','اللائحة']);
+  const text = (a.title + ' ' + a.change_type + ' ' + a.effect).replace(/[.,؛:،\-–—()]/g,' ');
+  const words = text.split(/\s+/).filter(w => w.length > 3 && !stop.has(w));
+  const uniq = [...new Set(words)];
+  return uniq.slice(0,6);
+}
+
+function bindArticleDetailEvents(artId){
+  const back = $('[data-back="all"]');
+  if(back) back.onclick = () => nav(`system/${SYSTEM.key}/all`);
+  const ta = $(`#notes-${artId}`);
+  if(ta) ta.oninput = () => { NOTES[artId] = ta.value; };
+}
+
+function retainedView(){
+  const groups = {};
+  RETAINED_ARTICLES.forEach(r => { (groups[r.group] = groups[r.group]||[]).push(r); });
+  return `
+  <h1 class="page-title"><span class="diamond"></span> المواد المستبقاة مؤقتًا</h1>
+  <p class="page-sub">${SYSTEM.retainedTemp} مادة من النظام القديم يستمر العمل بها مؤقتًا لحين صدور تنظيم مستقل</p>
+  <div class="info-card full">
+    <h4>${ICO.note} الأساس النظامي للاستبقاء المؤقت</h4>
+    <p>${esc(SYSTEM.retainedDesc)}</p>
+  </div>
+  ${Object.keys(groups).map(g => `
+    <div class="retained-group-title"><span class="diamond"></span> ${esc(g)}</div>
+    ${groups[g].map(r => `
+      <details class="retained-item">
+        <summary>المادة ${esc(r.number)} <span style="margin-inline-start:auto;font-weight:400;color:var(--ink-muted);font-size:12px">(النظام القديم)</span></summary>
+        <div class="ri-body">${esc(r.text)}</div>
+      </details>`).join('')}
+  `).join('')}
+  `;
+}
+
+// ---------- Stats view ----------
+function statsView(){
+  const c = counts();
+  const total = ARTICLES.length;
+  const colors = {'مستحدثة':'var(--green)','معدلة':'var(--amber)','منقولة':'var(--slate)','ملغاة':'var(--red)'};
+  const donutSegs = buildDonut([
+    {v:c['معدلة'], color:'#B9821E'},
+    {v:c['مستحدثة'], color:'#1E9E6B'},
+    {v:c['منقولة'], color:'#647486'},
+    {v:c['ملغاة'], color:'#D6455B'},
+  ]);
+  return `
+  <h1 class="page-title"><span class="diamond"></span> الإحصائيات</h1>
+  <p class="page-sub">توزيع المواد حسب نوع التغيير بين نظام ${SYSTEM.oldYear} ونظام ${SYSTEM.newYear}</p>
+
+  <div class="chart-card">
+    <h4>توزيع حالات المواد</h4>
+    <div class="donut-wrap">
+      <svg viewBox="0 0 42 42" width="180" height="180">
+        <circle cx="21" cy="21" r="15.9" fill="transparent" stroke="var(--surface-2)" stroke-width="6"></circle>
+        ${donutSegs}
+      </svg>
+      <div class="donut-legend">
+        <div class="dl-item"><span class="sw" style="background:#B9821E"></span> معدّلة <b>${c['معدلة']}</b> (${pct(c['معدلة'],total)}٪)</div>
+        <div class="dl-item"><span class="sw" style="background:#1E9E6B"></span> مستحدثة <b>${c['مستحدثة']}</b> (${pct(c['مستحدثة'],total)}٪)</div>
+        <div class="dl-item"><span class="sw" style="background:#647486"></span> منقولة <b>${c['منقولة']}</b> (${pct(c['منقولة'],total)}٪)</div>
+        <div class="dl-item"><span class="sw" style="background:#D6455B"></span> ملغاة <b>${c['ملغاة']}</b> (${pct(c['ملغاة'],total)}٪)</div>
+      </div>
+    </div>
+    <p style="font-size:12px;color:var(--ink-muted);margin:14px 0 0;">* إجمالي المواد المنقولة دون تعديل هو ${SYSTEM.transferred} مادة؛ الرسم أعلاه يعكس ${c['منقولة']} منها الموثّقة تفصيليًا حاليًا.</p>
+  </div>
+
+  <div class="chart-card">
+    <h4>المواد المستبقاة مؤقتًا من النظام القديم</h4>
+    <div class="bar-row"><div class="bar-label">إجمالي القديم</div><div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--slate)">${SYSTEM.oldCount} مادة</div></div></div>
+    <div class="bar-row"><div class="bar-label">مستبقاة مؤقتًا</div><div class="bar-track"><div class="bar-fill" style="width:${pct(SYSTEM.retainedTemp,SYSTEM.oldCount)}%;background:var(--amber)">${SYSTEM.retainedTemp} مادة</div></div></div>
+  </div>
+
+  <div class="chart-card">
+    <h4>عدد المواد حسب الحالة</h4>
+    ${['معدلة','مستحدثة','منقولة','ملغاة'].map(s => `
+      <div class="bar-row">
+        <div class="bar-label">${s}</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${Math.max(pct(c[s],total),4)}%; background:${colors[s]}">${c[s]}</div></div>
+      </div>`).join('')}
+  </div>
+
+  <div class="chart-card">
+    <h4>مقارنة إجمالية</h4>
+    <div class="bar-row"><div class="bar-label">النظام القديم</div><div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--slate)">${SYSTEM.oldCount} مادة</div></div></div>
+    <div class="bar-row"><div class="bar-label">النظام الجديد</div><div class="bar-track"><div class="bar-fill" style="width:${pct(SYSTEM.newCount,SYSTEM.oldCount)}%;background:var(--teal)">${SYSTEM.newCount} مادة</div></div></div>
+  </div>
+  `;
+}
+
+function pct(v,total){ return total ? Math.round(v/total*100) : 0; }
+
+function buildDonut(segments){
+  const total = segments.reduce((s,x)=>s+x.v,0) || 1;
+  let offsetAcc = 0;
+  const circumference = 2*Math.PI*15.9;
+  return segments.map(seg => {
+    const frac = seg.v/total;
+    const dash = frac*circumference;
+    const gap = circumference - dash;
+    const rotate = (offsetAcc/total)*360 - 90;
+    offsetAcc += seg.v;
+    return `<circle cx="21" cy="21" r="15.9" fill="transparent" stroke="${seg.color}" stroke-width="6" stroke-dasharray="${dash} ${gap}" transform="rotate(${rotate} 21 21)"></circle>`;
+  }).join('');
+}
+
+</script>
+</body>
+</html>
