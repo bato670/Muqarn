@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>مُقارن — مرجع المقارنات التشريعية</title>
+<title>مُقارن — مرجع المقارنات التنظيمية</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -1524,9 +1524,9 @@ function homeView(){
   const c = counts();
   return `
   <section class="hero">
-    <div class="hero-eyebrow"><span class="diamond"></span> مرجع تشريعي ذكي — نسخة تجريبية</div>
+    <div class="hero-eyebrow"><span class="diamond"></span> مرجع قانوني ذكي — نسخة تجريبية</div>
     <h1>افهم كل تعديل نظامي <span>في دقائق</span></h1>
-    <p>مُقارن يقارن نصوص الأنظمة السعودية القديمة والجديدة مادة بمادة، ويوضح نوع التعديل وأثره النظامي وعلاقته بالأنظمة الأخرى — لمساعدة القضاة والمحامين والباحثين على تتبّع التطور التشريعي بثقة.</p>
+    <p>مُقارن يقارن نصوص الأنظمة السعودية القديمة والجديدة مادة بمادة، ويوضح نوع التعديل وأثره النظامي وعلاقته بالأنظمة الأخرى — لمساعدة القضاة والمحامين والباحثين على تتبّع التطورات القانونية بثقة.</p>
     <button class="btn btn-primary" onclick="nav('system/${SYSTEM.key}')">${ICO.book} ابدأ المقارنة</button>
   </section>
 
@@ -1678,7 +1678,7 @@ function articleListView(statusFilter){
     <div class="empty-state">
       <span class="diamond lg" style="margin:0 auto;display:block;width:14px;"></span>
       <h3>لا توجد مواد بهذا التصنيف</h3>
-      <p style="font-size:13px">لم يتضمّن ملف المقارنة المصدر مواد مصنّفة كـ «${titleMap[statusFilter]}» لنظام التنفيذ.</p>
+      <p style="font-size:13px">لم يتضمّن النظام الجديد إلغاءً كاملًا لمواد مصنّفة كـ «${titleMap[statusFilter]}» لنظام التنفيذ.</p>
     </div>`;
   }
   const partialNote = statusFilter === 'منقولة' && list.length < SYSTEM.transferred
